@@ -15,14 +15,14 @@ import random
 import locale
 import platform
 
-if platform.system() == "Windows":
-    locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')
-else:  # Linux / Streamlit Cloud
+def set_spanish_locale():
     try:
         locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
     except locale.Error:
-        # Fallback al locale por defecto
+        # fallback: usar locale por defecto (ingles u otro)
         locale.setlocale(locale.LC_TIME, '')
+
+set_spanish_locale()
 
 # CARGA DEL LISTADO DE MIEMBROS
 #-------------------------------------------------------------------------------------------
