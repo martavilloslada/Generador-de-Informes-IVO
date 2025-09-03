@@ -1612,14 +1612,10 @@ def generar_informe_persona(nombre_persona):
 
             
             from datetime import datetime
-            import locale
+            
             import sys
 
-            # Configurar locale en español
-            try:
-                locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Linux/Mac
-            except:
-                locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')  # Windows
+            
 
             fecha_evento = evento_info.get('Fecha', 'N/D')
 
@@ -2566,14 +2562,10 @@ def generar_informe_socio(nombre_persona):
 
             
             from datetime import datetime
-            import locale
+            
             import sys
 
-            # Configurar locale en español
-            try:
-                locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Linux/Mac
-            except:
-                locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')  # Windows
+            
 
             fecha_evento = evento_info.get('Fecha', 'N/D')
 
