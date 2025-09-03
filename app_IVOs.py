@@ -12,6 +12,17 @@ import streamlit as st
 from docx import Document
 from io import BytesIO
 import random
+import locale
+import platform
+
+if platform.system() == "Windows":
+    locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')
+else:  # Linux / Streamlit Cloud
+    try:
+        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+    except locale.Error:
+        # Fallback al locale por defecto
+        locale.setlocale(locale.LC_TIME, '')
 
 # CARGA DEL LISTADO DE MIEMBROS
 #-------------------------------------------------------------------------------------------
