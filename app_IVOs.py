@@ -12,17 +12,35 @@ import streamlit as st
 from docx import Document
 from io import BytesIO
 import random
-import locale
-import platform
+import pandas as pd
+from datetime import datetime
 
-def set_spanish_locale():
+MESES_ES = {
+    1: "enero", 2: "febrero", 3: "marzo", 4: "abril",
+    5: "mayo", 6: "junio", 7: "julio", 8: "agosto",
+    9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
+}
+
+def formatear_fecha_es(fecha):
+    """
+    Formatea fechas en español sin depender de locale ni babel.
+    Acepta datetime, string o NaT.
+    """
+    if not fecha or pd.isna(fecha):
+        return "Fecha desconocida"
+
     try:
-        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
-    except locale.Error:
-        # fallback: usar locale por defecto (ingles u otro)
-        locale.setlocale(locale.LC_TIME, '')
+        if not isinstance(fecha, (datetime, pd.Timestamp)):
+            fecha = pd.to_datetime(fecha, errors="coerce")
+        if pd.isna(fecha):
+            return "Fecha desconocida"
 
-set_spanish_locale()
+        dia = fecha.day
+        mes = MESES_ES.get(fecha.month, "")
+        año = fecha.year
+        return f"{dia} de {mes} de {año}"
+    except Exception:
+        return str(fecha)
 
 # CARGA DEL LISTADO DE MIEMBROS
 #-------------------------------------------------------------------------------------------
@@ -1830,14 +1848,7 @@ def generar_informe_persona(nombre_persona):
             p.add_run("- Entidades que ya han aplicado: ").bold = True
             p.add_run(entidades_texto)
 
-            def formatear_fecha_es(fecha, fmt="%d/%m/%Y"):
-                """Devuelve la fecha en formato español o 'N/D' si está vacía."""
-                if fecha is None or pd.isna(fecha):
-                    return "No disponible"
-                try:
-                    return fecha.strftime(fmt)
-                except Exception:
-                    return "No disponible"
+            
 
 
             # Fecha de cierre
@@ -2570,28 +2581,7 @@ def generar_informe_socio(nombre_persona):
             import sys
             import pandas as pd
 
-            def formatear_fecha_es(fecha):
-                # Si es NaT o None
-                if pd.isna(fecha):
-                    return "Fecha desconocida"
-
-                fmt = '%#d de %B de %Y' if sys.platform.startswith('win') else '%-d de %B de %Y'
-
-                # Si ya es datetime
-                if isinstance(fecha, datetime):
-                    return fecha.strftime(fmt)
-
-                # Intentar convertir desde ISO o formato estándar
-                try:
-                    fecha_obj = datetime.fromisoformat(str(fecha))
-                    return fecha_obj.strftime(fmt)
-                except ValueError:
-                    try:
-                        fecha_obj = datetime.strptime(str(fecha), "%Y-%m-%d %H:%M:%S")
-                        return fecha_obj.strftime(fmt)
-                    except ValueError:
-                        # Fallback: devolver la primera parte de la cadena
-                        return str(fecha).split()[0]
+            
 
             fecha_str = formatear_fecha_es(fecha_evento)
 
