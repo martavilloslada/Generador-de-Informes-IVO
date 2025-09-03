@@ -2571,7 +2571,7 @@ def generar_informe_socio(nombre_persona):
 
             
             from datetime import datetime
-                        import sys
+            import sys
 
             # Configurar locale en español
             try:
