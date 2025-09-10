@@ -2727,7 +2727,7 @@ def generar_informe_socio(nombre_persona):
 
     
     if not df_eventos_por_evento.empty: 
-        for _, evento in df_evento_socios_por_evento.iterrows():
+        for _, evento in df_eventos_por_evento.iterrows():
             p = doc.add_paragraph(style='ListBullet')
     
             # Título del evento en negrita
