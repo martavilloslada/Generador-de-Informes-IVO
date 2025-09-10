@@ -2319,6 +2319,8 @@ def generar_informe_socio(nombre_persona):
     paragraph_img = cell_img.paragraphs[0]
     run_img = paragraph_img.add_run()
     run_img.add_picture('imagen_portada.jpg', width=Inches(4))  # Ajusta tamaño si necesario
+
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
     
     # === Celda derecha: título ===
     cell_title = table.cell(0, 1)
