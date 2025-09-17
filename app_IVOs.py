@@ -2162,7 +2162,7 @@ def generar_informe_persona(nombre_persona):
         doc.add_paragraph("")
     else:
         for _, fila in proyectos_filtrados.iterrows():
-            p = doc.add_paragraph(style='List Bullet')
+            p = doc.add_paragraph()
             p.add_run(f"{fila['Título de la Idea/Proyecto']}").bold = True
 
 
@@ -2334,7 +2334,7 @@ def generar_informe_persona(nombre_persona):
             set_paragraph_background(p, "8C8AFF")
 
     
-            p = doc.add_paragraph(style='List Bullet')
+            p = doc.add_paragraph()
             p.add_run(f"{fila['Título de la Idea/Proyecto']}").bold = True
 
 
@@ -3307,7 +3307,7 @@ def generar_informe_socio(nombre_persona):
         doc.add_paragraph("")
     else:
         for _, fila in proyectos_filtrados.iterrows():
-            p = doc.add_paragraph(style='List Bullet')
+            p = doc.add_paragraph()
             p.add_run(f"{fila['Título de la Idea/Proyecto']}").bold = True
 
 
@@ -3480,7 +3480,7 @@ def generar_informe_socio(nombre_persona):
             set_paragraph_background(p, "8C8AFF")
 
     
-            p = doc.add_paragraph(style='List Bullet')
+            p = doc.add_paragraph()
             p.add_run(f"{fila['Título de la Idea/Proyecto']}").bold = True
 
 
