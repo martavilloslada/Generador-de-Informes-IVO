@@ -2306,6 +2306,8 @@ def generar_informe_socio(nombre_persona):
         rFonts.set(qn('w:eastAsia'), 'DM Sans')
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
+
+    doc.add_paragraph("", style='CustomTitle')
     # === Crear tabla con 1 fila y 2 columnas ===
     table = doc.add_table(rows=1, cols=2)
     table.allow_autofit = True
@@ -2325,13 +2327,26 @@ def generar_informe_socio(nombre_persona):
     
     # === Celda derecha: título ===
     cell_title = table.cell(0, 1)
+
+    # limpiar primer párrafo vacío si existe
     paragraph_title = cell_title.paragraphs[0]
+    paragraph_title.text = ""
+    
+    # añadir párrafos en blanco
+    cell_title.add_paragraph("")
+    cell_title.add_paragraph("")
+    
+    # ahora el párrafo de título
+    paragraph_title = cell_title.add_paragraph()
     paragraph_title.style = 'CustomTitle'
-    paragraph_title.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    paragraph_title.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    
     persona_fila = socios.loc[socios["Nombre completo"] == nombre_persona]
-    persona = persona_fila.iloc[0]  # Extraer la fila
-    run_title = paragraph_title.add_run(f"Informe de Valor y Oportunidades para {persona.get('Socio', 'N/D')}")
-    doc.add_page_break()
+    persona = persona_fila.iloc[0]
+    
+    run_title = paragraph_title.add_run(
+        f"Informe de Valor y Oportunidades para {persona.get('Socio', 'N/D')}"
+    )
     
     
     # ========================
@@ -2394,6 +2409,7 @@ def generar_informe_socio(nombre_persona):
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
     
+    doc.add_paragraph("", style='CustomTitle')
     p_index_title = doc.add_paragraph('Índice', style='CustomTitle')
     nombre_entidad = persona.get('Socio', 'N/D')
 
@@ -2409,7 +2425,7 @@ def generar_informe_socio(nombre_persona):
     ]
     
     for item in indice_items:
-        p = doc.add_paragraph(item, style='Normal')
+        p = doc.add_paragraph(item, style='IndexTitle')
         p.paragraph_format.space_before = Pt(6)
     doc.add_page_break()
    
@@ -2462,7 +2478,7 @@ def generar_informe_socio(nombre_persona):
         doc.add_paragraph(f"Este informe tiene como objetivo poner en valor la participación de {nombre_entidad} en el ecosistema SECPHO, destacando tanto su trayectoria como las oportunidades que pueden surgir dentro del ecosistema.")
         doc.add_paragraph("")
         doc.add_paragraph("Se recogen recomendaciones de potenciales contactos, así como eventos o actividades, retos tecnológicos y proyectos, tanto pasados como futuros, alineados con sus áreas de interés.")
-    
+        doc.add_paragraph("")
     persona = persona_fila.iloc[0]  # Extraer la fila
 
     import unicodedata
@@ -2530,7 +2546,8 @@ def generar_informe_socio(nombre_persona):
     titulo = doc.add_paragraph(f"2. Resumen de datos de {persona.get('Socio', 'N/D')}", style='CustomTitle')
     titulo.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     doc.add_paragraph(f"Este apartado recoge la información clave sobre el perfil de {persona.get('Socio', 'N/D')}, destacando sus ámbitos de actuación, tecnologías y sectores estratégicos")
-# Añadir resumen de información personal
+    doc.add_paragraph("")
+    # Añadir resumen de información personal
     p = doc.add_paragraph("Ficha de socio", style='CustomTitle2')
     p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     set_paragraph_background(p, "FF7E27")
@@ -2602,7 +2619,8 @@ def generar_informe_socio(nombre_persona):
     titulo = doc.add_paragraph("3. Contactos Recomendados", style='CustomTitle')
     titulo.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     doc.add_paragraph(f"En este apartado os sugerimos contactos de expertos del ecosistema SECPHO que pueden resultar de interés para miembros del equipo de {persona.get('Socio', 'N/D')}. El objetivo es facilitaros conexiones y, si os interesa, reuniones personalizadas con personas afines a vuestras capacidades, tecnologías clave y áreas de interés, fomentando así nuevas oportunidades de colaboración.")
-# Añadir resumen de información personal
+    doc.add_paragraph("")
+    # Añadir resumen de información personal
     p = doc.add_paragraph("Propuesta de contactos recomendados", style='CustomTitle2')
     p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     set_paragraph_background(p, "F25830")
@@ -2627,11 +2645,12 @@ def generar_informe_socio(nombre_persona):
     titulo = doc.add_paragraph("4. Eventos y actividades", style='CustomTitle')
     titulo.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     doc.add_paragraph(f"Se presentan las recomendaciones de próximos eventos relevantes para {persona.get('Socio', 'N/D')}, así como el histórico de participación de sus miembros en actividades organizadas o dinamizadas por SECPHO.")
+    doc.add_paragraph("")
     # Añadir título centrado con estilo personalizado
     
     # Añadir sección de recomendaciones al informe
     j=doc.add_paragraph(f"Próximos eventos recomendados para el equipo de {persona.get('Socio', 'N/D')}", style='CustomTitle2')
-    j.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    j.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     set_paragraph_background(j, "4570F7")
 
     if not recomendaciones_positivas.empty:
@@ -2677,7 +2696,9 @@ def generar_informe_socio(nombre_persona):
             else:
                 ambis_str = str(ambis)
             p = doc.add_paragraph()
-            p.add_run("    ○ Ámbitos del evento: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Ámbitos del evento: ").bold = True
             p.add_run(ambis_str)
 
             # Ubicación
@@ -2764,6 +2785,7 @@ def generar_informe_socio(nombre_persona):
     titulo = doc.add_paragraph("5. Retos Tecnológicos", style='CustomTitle')
     titulo.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     doc.add_paragraph(f"Aquí se incluyen los retos tecnológicos más afines a las capacidades de {persona.get('Socio', 'N/D')}, junto con los retos en los que la entidad ya ha mostrado interés o participación")
+    doc.add_paragraph("")
     # Añadir título centrado con estilo personalizado
     
 
@@ -2820,7 +2842,7 @@ def generar_informe_socio(nombre_persona):
             # Título y Score en negrita
             a = doc.add_paragraph()
             a.add_run(reto_info['Num. reto']).bold = True
-            a.add_run(f" {reto_info['Título']}").bold = True
+            a.add_run(f" - {reto_info['Título']}").bold = True
             a.add_run(f" (Score de similitud: {fila['Score_num']:.2f}%)").bold = True
 
             # Descripción
@@ -2829,7 +2851,9 @@ def generar_informe_socio(nombre_persona):
                 descripcion = "Descripción no disponible."
 
             p = doc.add_paragraph()
-            p.add_run("    ○ Descripción: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Descripción: ").bold = True
             p.add_run(descripcion)
 
             # Sector
@@ -2857,7 +2881,9 @@ def generar_informe_socio(nombre_persona):
                 entidades_texto = str(entidades_aplican)
 
             p = doc.add_paragraph()
-            p.add_run("    ○ Entidades que ya han aplicado: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Entidades que ya han aplicado: ").bold = True
             p.add_run(entidades_texto)
 
             # Fecha de cierre
@@ -2905,7 +2931,7 @@ def generar_informe_socio(nombre_persona):
         for fila in retos_de_su_empresa:
             p = doc.add_paragraph()
             p.add_run(f"{fila['Num. reto']} ").bold = True
-            p.add_run(f"{fila['Título']}").bold = True
+            p.add_run(f" - {fila['Título']}").bold = True
 
 
             # Descripción
@@ -2913,7 +2939,9 @@ def generar_informe_socio(nombre_persona):
             if not descripcion or pd.isna(descripcion) or str(descripcion).strip() == "":
                 descripcion = "Descripción no disponible."
             p = doc.add_paragraph()
-            p.add_run("    ○ Descripción: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Descripción: ").bold = True
             p.add_run(descripcion)
 
 
@@ -2935,7 +2963,9 @@ def generar_informe_socio(nombre_persona):
             entidades_texto = "Ninguna" if not entidades_aplican else str(entidades_aplican)
 
             p = doc.add_paragraph()
-            p.add_run("    ○ Entidades que ya han aplicado: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Entidades que ya han aplicado: ").bold = True
             p.add_run(entidades_texto)
 
             # Fecha de cierre
@@ -2979,7 +3009,7 @@ def generar_informe_socio(nombre_persona):
         for fila in retos_de_su_empresa:
             p = doc.add_paragraph()
             p.add_run(f"{fila['Num. reto']} ").bold = True
-            p.add_run(f"{fila['Título']}").bold = True
+            p.add_run(f" - {fila['Título']}").bold = True
 
 
             # Descripción
@@ -2987,7 +3017,9 @@ def generar_informe_socio(nombre_persona):
             if not descripcion or pd.isna(descripcion) or str(descripcion).strip() == "":
                 descripcion = "Descripción no disponible."
             p = doc.add_paragraph()
-            p.add_run("    ○ Descripción: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Descripción: ").bold = True
             p.add_run(descripcion)
 
 
@@ -3022,7 +3054,9 @@ def generar_informe_socio(nombre_persona):
             entidades_texto = "Ninguna" if not entidades_aplican else str(entidades_aplican)
 
             p = doc.add_paragraph()
-            p.add_run("    ○ Entidades que ya han aplicado: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Entidades que ya han aplicado: ").bold = True
             p.add_run(entidades_texto)
 
             # Fecha de cierre
@@ -3038,7 +3072,7 @@ def generar_informe_socio(nombre_persona):
     titulo = doc.add_paragraph("6. Proyectos", style='CustomTitle')
     titulo.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     doc.add_paragraph(f"Este apartado recoge tanto los proyectos en los que {persona.get('Socio', 'N/D')} ha colaborado como aquellos coordinados por secpho que resultan de interés estratégico por su alineación con las capacidades, tecnologías y sectores de interés de {persona.get('Socio', 'N/D')}")
-    
+    doc.add_paragraph("")
     # Añadir sección de proyectos de la empresa
     empresa_persona = str(persona.get('Socio', 'N/D')).strip()
     p=doc.add_paragraph(f"Proyectos en los que {empresa_persona} ha  colaborado como Partner", style='CustomTitle2')
@@ -3081,7 +3115,9 @@ def generar_informe_socio(nombre_persona):
             if part_str == "":
                 part_str = 'No definidos'
             p = doc.add_paragraph()
-            p.add_run("    ○ Partners del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Partners del proyecto: ").bold = True
             p.add_run(part_str)
 
             # Origen fondos
@@ -3101,11 +3137,11 @@ def generar_informe_socio(nombre_persona):
             presu = fila.get("Presupuesto total (€)", "")
             if pd.notna(presu):
                 p = doc.add_paragraph()
-                p.add_run("- Presupuest total: ").bold = True
+                p.add_run("    ○ Presupuest total: ").bold = True
                 p.add_run(f"{presu:,.2f} €")  
             else:
                 p = doc.add_paragraph()
-                p.add_run("    ○ Presupuest total: ").bold = True
+                p.add_run("    ○ Presupuesto total: ").bold = True
                 p.add_run("No consta")
 
 
@@ -3234,7 +3270,9 @@ def generar_informe_socio(nombre_persona):
             if part_str == "":
                 part_str = 'No definidos'
             p = doc.add_paragraph()
-            p.add_run("    ○ Partners del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Partners del proyecto: ").bold = True
             p.add_run(part_str)
 
             # Origen fondos
