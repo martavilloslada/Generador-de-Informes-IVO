@@ -1588,7 +1588,7 @@ def generar_informe_persona(nombre_persona):
     
 
     # Buscar la persona en el dataframe
-    persona_fila = socios.loc[miembros["Nombre completo"] == nombre_persona]
+    persona_fila = miembros.loc[miembros["Nombre completo"] == nombre_persona]
     if persona_fila.empty:
         doc.add_paragraph("⚠️ No se encontró información sobre esta persona.")
         return doc  # Devolvemos el doc aunque esté incompleto
