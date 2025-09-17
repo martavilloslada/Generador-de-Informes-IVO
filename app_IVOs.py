@@ -2755,7 +2755,7 @@ def generar_informe_socio(nombre_persona):
 
     # Añadir sección de eventos asistidos en el último año
     p=doc.add_paragraph(f"Eventos a los que ha asistido el equipo de {persona.get('Socio', 'N/D')}", style='CustomTitle2')
-    p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     set_paragraph_background(p, "4570F7")
 
     
@@ -2919,7 +2919,7 @@ def generar_informe_socio(nombre_persona):
     # Añadir sección de retos en el último año
     empresa_persona = str(persona.get('Socio', 'N/D')).strip()
     p=doc.add_paragraph(f"Retos tecnológicos emitidos por {empresa_persona} gestionados por SECPHO", style='CustomTitle2')
-    p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     set_paragraph_background(p, "F25830")
 
     # Lista para guardar retos de la empresa
@@ -2942,7 +2942,7 @@ def generar_informe_socio(nombre_persona):
 
     # Mostrar resultados
     if not retos_de_su_empresa:
-        doc.add_paragraph(f"Por ahora,{empresa_persona} no ha emitido retos tecnológicos a través de SECPHO. Nuestro equipo puede ayudarte tanto en la definición y dinamización de retos como en la búsqueda de partners mediante tech scouting que aporten soluciones concretas.")
+        doc.add_paragraph(f"Por ahora, {empresa_persona} no ha emitido retos tecnológicos a través de SECPHO. Nuestro equipo puede ayudarte tanto en la definición y dinamización de retos como en la búsqueda de partners mediante tech scouting que aporten soluciones concretas.")
         doc.add_paragraph("")
     else:
         for fila in retos_de_su_empresa:
@@ -3001,7 +3001,7 @@ def generar_informe_socio(nombre_persona):
     # Añadir sección de retos en el último año
     empresa_persona = str(persona.get('Socio', 'N/D')).strip()
     p=doc.add_paragraph(f"Retos tecnológicos a los que {empresa_persona} ha aplicado", style='CustomTitle2')
-    p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
     set_paragraph_background(p, "F25830")
 
     # Lista para guardar retos de la empresa
