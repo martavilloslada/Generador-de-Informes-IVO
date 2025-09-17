@@ -1780,24 +1780,30 @@ def generar_informe_persona(nombre_persona):
 
             fecha_evento = evento_info.get('Fecha', 'N/D')
 
+            MESES_ES = {
+                1: "enero", 2: "febrero", 3: "marzo", 4: "abril",
+                5: "mayo", 6: "junio", 7: "julio", 8: "agosto",
+                9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
+            }
+            
             def formatear_fecha_es(fecha):
                 if not fecha or pd.isna(fecha):
                     return "Fecha desconocida"
-                if isinstance(fecha, datetime):
-                    fmt = '%#d de %B de %Y' if sys.platform.startswith('win') else '%-d de %B de %Y'
-                    return fecha.strftime(fmt)
-                else:
-                    try:
-                        fecha_obj = datetime.fromisoformat(str(fecha))
-                        fmt = '%#d de %B de %Y' if sys.platform.startswith('win') else '%-d de %B de %Y'
-                        return fecha_obj.strftime(fmt)
-                    except ValueError:
+            
+                try:
+                    if not isinstance(fecha, datetime):
                         try:
-                            fecha_obj = datetime.strptime(str(fecha), "%Y-%m-%d %H:%M:%S")
-                            fmt = '%#d de %B de %Y' if sys.platform.startswith('win') else '%-d de %B de %Y'
-                            return fecha_obj.strftime(fmt)
+                            fecha = datetime.fromisoformat(str(fecha))
                         except ValueError:
-                            return str(fecha).split()[0]
+                            fecha = datetime.strptime(str(fecha), "%Y-%m-%d %H:%M:%S")
+            
+                    dia = fecha.day
+                    mes = MESES_ES[fecha.month]
+                    año = fecha.year
+                    return f"{dia} de {mes} de {año}"
+            
+                except Exception:
+                    return str(fecha).split()[0]
 
             fecha_str = formatear_fecha_es(fecha_evento)
 
@@ -1892,8 +1898,9 @@ def generar_informe_persona(nombre_persona):
             # --- Si pasó ambas comprobaciones, se muestra el reto ---
 
             # Título y Score en negrita
-            p.add_run(f"{fila['Num. reto']} ").bold = True
-            p.add_run(f" - {fila['Título']}").bold = True
+            a = doc.add_paragraph()
+            a.add_run(f"{fila['Num. reto']} ").bold = True
+            a.add_run(f" - {fila['Título']}").bold = True
             a.add_run(f" (Score de similitud: {fila['Score_num']:.2f}%)").bold = True
 
             # Descripción
@@ -1986,6 +1993,7 @@ def generar_informe_persona(nombre_persona):
         doc.add_paragraph("")
     else:
         for fila in retos_de_su_empresa:
+            p = doc.add_paragraph()
             p.add_run(f"{fila['Num. reto']} ").bold = True
             p.add_run(f" - {fila['Título']}").bold = True
 
@@ -2070,7 +2078,7 @@ def generar_informe_persona(nombre_persona):
         doc.add_paragraph("")
     else:
         for fila in retos_de_su_empresa:
-            
+            p = doc.add_paragraph()
             p.add_run(f"{fila['Num. reto']} ").bold = True
             p.add_run(f" - {fila['Título']}").bold = True
 
