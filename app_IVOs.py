@@ -2409,6 +2409,7 @@ def generar_informe_socio(nombre_persona):
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
     
+    doc.add_page_break()
     doc.add_paragraph("", style='CustomTitle')
     p_index_title = doc.add_paragraph('Índice', style='CustomTitle')
     nombre_entidad = persona.get('Socio', 'N/D')
@@ -2672,7 +2673,9 @@ def generar_informe_socio(nombre_persona):
             else:
                 tecnos_str = str(tecnos)
             p = doc.add_paragraph()
-            p.add_run("    ○ Tecnologías del evento: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Tecnologías del evento: ").bold = True
             p.add_run(tecnos_str)
 
             # Sector
@@ -2684,7 +2687,9 @@ def generar_informe_socio(nombre_persona):
             else:
                 sectos_str = str(sectos)
             p = doc.add_paragraph()
-            p.add_run("    ○ Sectores del evento: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Sectores del evento: ").bold = True
             p.add_run(sectos_str)
 
             # Ámbito
@@ -2703,14 +2708,18 @@ def generar_informe_socio(nombre_persona):
 
             # Ubicación
             p = doc.add_paragraph()
-            p.add_run("    ○ Ubicación: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Ubicación: ").bold = True
             p.add_run(str(evento_info.get('Ubicación', 'N/D')))
 
             # Provincia (solo si la ubicación no es 'online')
             ubicacion = str(evento_info.get('Ubicación', '')).strip().lower()
             if ubicacion != 'online':
                 p = doc.add_paragraph()
-                p.add_run("    ○ Provincia donde se celebrará: ").bold = True
+                p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+                p.paragraph_format.first_line_indent = Pt(-18)
+                p.add_run("○ Provincia donde se celebrará: ").bold = True
                 p.add_run(str(evento_info.get('Provincia', 'N/D')))
 
             
@@ -2731,7 +2740,9 @@ def generar_informe_socio(nombre_persona):
             fecha_str = formatear_fecha_es(fecha_evento)
 
             p = doc.add_paragraph()
-            p.add_run("    ○ Fecha: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Fecha: ").bold = True
             p.add_run(fecha_str)
 
 
@@ -2866,12 +2877,16 @@ def generar_informe_socio(nombre_persona):
                 sector_str = str(sector)
 
             p = doc.add_paragraph()
-            p.add_run("    ○ Sector al que pertenece el reto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18) 
+            p.add_run("○ Sector al que pertenece el reto: ").bold = True
             p.add_run(sector_str)
 
             # Entidad emisora
             p = doc.add_paragraph()
-            p.add_run("    ○ Entidad emisora del reto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18) 
+            p.add_run("○ Entidad emisora del reto: ").bold = True
             p.add_run(str(reto_info.get('Entidad emisora', 'N/D')))
 
             # Entidades que aplican
@@ -2891,7 +2906,9 @@ def generar_informe_socio(nombre_persona):
             fecha_cierre_str = formatear_fecha_es(fecha_cierre)
 
             p = doc.add_paragraph()
-            p.add_run("    ○ Fecha de cierre: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18) 
+            p.add_run("○ Fecha de cierre: ").bold = True
             p.add_run(fecha_cierre_str)
 
             doc.add_paragraph("")  # Espacio al final
@@ -2955,7 +2972,9 @@ def generar_informe_socio(nombre_persona):
                 sector_str = str(sector)
 
             p = doc.add_paragraph()
-            p.add_run("    ○ Sector al que pertenece el reto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18) 
+            p.add_run("○ Sector al que pertenece el reto: ").bold = True
             p.add_run(sector_str)
 
             # Entidades que aplican
@@ -2972,7 +2991,9 @@ def generar_informe_socio(nombre_persona):
             fecha_cierre = fila['Fecha cierre']
             fecha_cierre_str = formatear_fecha_es(fecha_cierre)
             p = doc.add_paragraph()
-            p.add_run("    ○ Fecha de cierre: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18) 
+            p.add_run("○ Fecha de cierre: ").bold = True
             p.add_run(fecha_cierre_str)
             doc.add_paragraph("")
 
@@ -3033,7 +3054,9 @@ def generar_informe_socio(nombre_persona):
                 sector_str = str(sector)
 
             p = doc.add_paragraph()
-            p.add_run("    ○ Sector al que pertenece el reto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18) 
+            p.add_run("○ Sector al que pertenece el reto: ").bold = True
             p.add_run(sector_str)
 
             # Entidad emisora
@@ -3046,7 +3069,9 @@ def generar_informe_socio(nombre_persona):
                 emisor_str = str(emisor)
 
             p = doc.add_paragraph()
-            p.add_run("    ○ Entidad emisora del reto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18) 
+            p.add_run("○ Entidad emisora del reto: ").bold = True
             p.add_run(emisor_str)
 
             # Entidades que aplican
@@ -3063,7 +3088,9 @@ def generar_informe_socio(nombre_persona):
             fecha_cierre = fila['Fecha cierre']
             fecha_cierre_str = formatear_fecha_es(fecha_cierre)
             p = doc.add_paragraph()
-            p.add_run("    ○ Fecha de cierre: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18) 
+            p.add_run("○ Fecha de cierre: ").bold = True
             p.add_run(fecha_cierre_str) 
             doc.add_paragraph("")   
 
@@ -3094,14 +3121,18 @@ def generar_informe_socio(nombre_persona):
             fecha_inicio = fila[' Inicio']
             fecha_inicio_str = formatear_fecha_es(fecha_inicio)
             p = doc.add_paragraph()
-            p.add_run("    ○ Fecha de inicio del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18) 
+            p.add_run("○ Fecha de inicio del proyecto: ").bold = True
             p.add_run(fecha_inicio_str)
 
             # Fecha de cierre
             fecha_final = fila[' Final']
             fecha_final_str = formatear_fecha_es(fecha_final)
             p = doc.add_paragraph()
-            p.add_run("    ○ Fecha de finalización del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18) 
+            p.add_run("○ Fecha de finalización del proyecto: ").bold = True
             p.add_run(fecha_final_str)
 
             # partners
@@ -3122,7 +3153,9 @@ def generar_informe_socio(nombre_persona):
 
             # Origen fondos
             p = doc.add_paragraph()
-            p.add_run("    ○ Origen de los fondos: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Origen de los fondos: ").bold = True
             p.add_run(str(fila.get('Origen fondos ', 'N/D')))
 
             # Programa financiación
@@ -3130,18 +3163,24 @@ def generar_informe_socio(nombre_persona):
             if not programa or pd.isna(programa) or str(programa).strip() == "":
                 programa = "No consta"
             p = doc.add_paragraph()
-            p.add_run("    ○ Programa de financiación: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Programa de financiación: ").bold = True
             p.add_run(programa)
 
             # Presupuesto total
             presu = fila.get("Presupuesto total (€)", "")
             if pd.notna(presu):
                 p = doc.add_paragraph()
-                p.add_run("    ○ Presupuest total: ").bold = True
+                p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+                p.paragraph_format.first_line_indent = Pt(-18)
+                p.add_run("○ Presupuest total: ").bold = True
                 p.add_run(f"{presu:,.2f} €")  
             else:
                 p = doc.add_paragraph()
-                p.add_run("    ○ Presupuesto total: ").bold = True
+                p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+                p.paragraph_format.first_line_indent = Pt(-18)
+                p.add_run("○ Presupuesto total: ").bold = True
                 p.add_run("No consta")
 
 
@@ -3159,7 +3198,9 @@ def generar_informe_socio(nombre_persona):
             if tecno_str == "":
                 tecno_str = 'No definidas'
             p = doc.add_paragraph()
-            p.add_run("    ○ Tecnologías del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Tecnologías del proyecto: ").bold = True
             p.add_run(tecno_str)
 
             # Sector
@@ -3173,7 +3214,9 @@ def generar_informe_socio(nombre_persona):
             if sector_str == "":
                 sector_str = 'No definido'
             p = doc.add_paragraph()
-            p.add_run("    ○ Sectores del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Sectores del proyecto: ").bold = True
             p.add_run(sector_str)
 
             # ambitos
@@ -3187,7 +3230,9 @@ def generar_informe_socio(nombre_persona):
             if ambi_str == "":
                 ambi_str = 'No definido'
             p = doc.add_paragraph()
-            p.add_run("    ○ Ámbitos del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Ámbitos del proyecto: ").bold = True
             p.add_run(ambi_str)
             doc.add_paragraph("")
 
@@ -3249,14 +3294,18 @@ def generar_informe_socio(nombre_persona):
             fecha_inicio = fila[' Inicio']
             fecha_inicio_str = formatear_fecha_es(fecha_inicio)
             p = doc.add_paragraph()
-            p.add_run("    ○ Fecha de inicio del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Fecha de inicio del proyecto: ").bold = True
             p.add_run(fecha_inicio_str)
 
             # Fecha de cierre
             fecha_final = fila[' Final']
             fecha_final_str = formatear_fecha_es(fecha_final)
             p = doc.add_paragraph()
-            p.add_run("    ○ Fecha de finalización del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Fecha de finalización del proyecto: ").bold = True
             p.add_run(fecha_final_str)
 
             # partners
@@ -3277,7 +3326,9 @@ def generar_informe_socio(nombre_persona):
 
             # Origen fondos
             p = doc.add_paragraph()
-            p.add_run("    ○ Origen de los fondos: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Origen de los fondos: ").bold = True
             p.add_run(str(fila.get('Origen fondos ', 'N/D')))
 
             # Programa financiación
@@ -3285,18 +3336,24 @@ def generar_informe_socio(nombre_persona):
             if not programa or pd.isna(programa) or str(programa).strip() == "":
                 programa = "No consta"
             p = doc.add_paragraph()
-            p.add_run("    ○ Programa de financiación: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Programa de financiación: ").bold = True
             p.add_run(programa)
 
             # Presupuesto total
             presu = fila.get("Presupuesto total (€)", "")
             if pd.notna(presu):
                 p = doc.add_paragraph()
-                p.add_run("    ○ Presupuest total: ").bold = True
+                p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+                p.paragraph_format.first_line_indent = Pt(-18)
+                p.add_run("○ Presupuest total: ").bold = True
                 p.add_run(f"{presu:,.2f} €")  
             else:
                 p = doc.add_paragraph()
-                p.add_run("- Presupuest total: ").bold = True
+                p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+                p.paragraph_format.first_line_indent = Pt(-18)
+                p.add_run("○ Presupuest total: ").bold = True
                 p.add_run("No consta")
 
 
@@ -3314,7 +3371,9 @@ def generar_informe_socio(nombre_persona):
             if tecno_str == "":
                 tecno_str = 'No definidas'
             p = doc.add_paragraph()
-            p.add_run("    ○ Tecnologías del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Tecnologías del proyecto: ").bold = True
             p.add_run(tecno_str)
 
             # Sector
@@ -3328,7 +3387,9 @@ def generar_informe_socio(nombre_persona):
             if sector_str == "":
                 sector_str = 'No definido'
             p = doc.add_paragraph()
-            p.add_run("    ○ Sectores del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Sectores del proyecto: ").bold = True
             p.add_run(sector_str)
 
             # ambitos
@@ -3342,7 +3403,9 @@ def generar_informe_socio(nombre_persona):
             if ambi_str == "":
                 ambi_str = 'No definido'
             p = doc.add_paragraph()
-            p.add_run("    ○ Ámbitos del proyecto: ").bold = True
+            p.paragraph_format.left_indent = Pt(36)       # sangría izquierda (todo el bloque)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            p.add_run("○ Ámbitos del proyecto: ").bold = True
             p.add_run(ambi_str)
             doc.add_paragraph("")
 
