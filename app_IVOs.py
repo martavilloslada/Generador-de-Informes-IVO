@@ -1314,9 +1314,9 @@ def proyectos_de_socio(df_proyectos, socio):
 def proyectos_relacionados(proyectos, tecnologias_persona, sectores_persona):
     """
     Busca proyectos relacionados con una persona según tecnologías y sectores.
-    - Primero: proyectos que coinciden en al menos 1 tecnología Y 1 sector.
-    - Si no hay: proyectos que coinciden en tecnología O en sector.
-    Devuelve como máximo los 5 proyectos más recientes (según 'Final').
+    - Prioridad: proyectos que coinciden en al menos 1 tecnología Y 1 sector (dobles).
+    - Si hay menos de 5, se rellenan con proyectos que coincidan en tecnología O sector (simples).
+    Devuelve como máximo 5 proyectos más recientes (según 'Final').
     """
 
     # --- Normalizar entrada ---
@@ -1353,7 +1353,6 @@ def proyectos_relacionados(proyectos, tecnologias_persona, sectores_persona):
         fila_copy["Tecnología de coincidencia"] = ", ".join(match_tecnologias)
         fila_copy["Sector de coincidencia"] = ", ".join(match_sectores)
 
-        # Guardamos siempre, luego filtramos según condición
         fila_copy["_match_tecnologias"] = bool(match_tecnologias)
         fila_copy["_match_sectores"] = bool(match_sectores)
 
@@ -1364,16 +1363,18 @@ def proyectos_relacionados(proyectos, tecnologias_persona, sectores_persona):
     if df_filtrado.empty:
         return df_filtrado
 
-    # --- Paso 1: buscar coincidencias en ambos ---
+    # --- Coincidencias dobles ---
     df_and = df_filtrado[(df_filtrado["_match_tecnologias"]) & (df_filtrado["_match_sectores"])]
+    df_and = df_and.sort_values(" Final", ascending=False)
 
-    if not df_and.empty:
-        return df_and.sort_values(" Final", ascending=False).head(5).drop(columns=["_match_tecnologias", "_match_sectores"])
+    # --- Coincidencias simples ---
+    df_or = df_filtrado[((df_filtrado["_match_tecnologias"]) | (df_filtrado["_match_sectores"])) & ~df_filtrado.index.isin(df_and.index)]
+    df_or = df_or.sort_values(" Final", ascending=False)
 
-    # --- Paso 2: si no hay dobles coincidencias, buscar simples ---
-    df_or = df_filtrado[(df_filtrado["_match_tecnologias"]) | (df_filtrado["_match_sectores"])]
+    # --- Combinar resultados ---
+    df_result = pd.concat([df_and, df_or]).head(5)
 
-    return df_or.sort_values(" Final", ascending=False).head(5).drop(columns=["_match_tecnologias", "_match_sectores"])
+    return df_result.drop(columns=["_match_tecnologias", "_match_sectores"])
 #--------------------------------------------------------------------------------------------------------------------
 
 # GENERACIÓN DEL INFORME DE PERSONA
@@ -2736,7 +2737,14 @@ def generar_informe_socio(nombre_persona):
         
             # Fecha en negrita entre paréntesis (si existe)
             if pd.notna(evento.get("Fecha")):
-                fecha_str = f" ({evento['Fecha']})"
+                from datetime import datetime
+                import sys
+                import pandas as pd
+
+            
+
+                fecha_str = formatear_fecha_es(evento.get("Fecha"))
+                fecha_str = f" ({fecha_str})"
                 run_fecha = p.add_run(fecha_str)
                 run_fecha.bold = True
         
