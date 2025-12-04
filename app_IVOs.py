@@ -1465,11 +1465,11 @@ def generar_informe_persona(nombre_persona):
     persona = persona_fila.iloc[0]
 
     # --- 6. Encabezado y pie de página ---
-    header = section_normal.header
-    p_header = header.add_paragraph()
-    p_header.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    run_img = p_header.add_run()
-    run_img.add_picture('logo1.png', width=Inches(1.0))
+    #header = section_normal.header
+    #p_header = header.add_paragraph()
+    #p_header.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    #run_img = p_header.add_run()
+    #run_img.add_picture('logo1.png', width=Inches(1.0))
 
     footer = section_normal.footer
     p_footer = footer.add_paragraph()
