@@ -1434,64 +1434,71 @@ def generar_informe_persona(nombre_persona):
         style.element.rPr.insert(0, rFonts)
 
     doc.add_paragraph("", style='CustomTitle')
-    def add_full_page_cover(doc, image_path):
-    
-        from docx.oxml import register_namespace
+    from PIL import Image, ImageDraw, ImageFont
 
-        # Registrar namespace de VML para permitir v:shape, v:imagedata, etc.
-        register_namespace('v', 'urn:schemas-microsoft-com:vml')
-        register_namespace('o', 'urn:schemas-microsoft-com:office:office')
-        register_namespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships')
-        section = doc.sections[0]
     
-        # Tamaño completo de página
-        page_width = section.page_width
-        page_height = section.page_height
+   
     
-        header = section.header
-        header_para = header.paragraphs[0]
+    def create_cover_with_person(doc, image_path, persona, output_path="portada_final.png",
+                                 font_path=None, font_size=80, margin_x=50, margin_y=50):
+        """
+        Crea portada con imagen a pantalla completa y texto superpuesto con el nombre de la persona.
+        
+        - doc: objeto Document de python-docx
+        - image_path: ruta de la imagen de fondo
+        - persona: diccionario con claves 'Nombre' y 'Apellidos'
+        - output_path: imagen generada
+        - font_path: ruta a fuente .ttf opcional
+        - font_size: tamaño del texto
+        - margin_x, margin_y: posición del texto desde esquina superior izquierda
+        """
     
-        # Crear <w:pict> con <v:shape>
-        pict = OxmlElement('w:pict')
-        shape = OxmlElement('v:shape')
-        shape.set('id', 'CoverImage')
-        shape.set('style', f'width:{page_width};height:{page_height}')
-        shape.set('type', '#_x0000_t75')
+        # Texto a superponer
+        texto = f"Informe de Valor y Oportunidades para {persona.get('Nombre','N/D')} {persona.get('Apellidos','N/D')}"
     
-        imagedata = OxmlElement('v:imagedata')
-        imagedata.set('r:id', doc.part.relate_to(image_path, doc.part.image_parts[0].content_type))
-        shape.append(imagedata)
-        pict.append(shape)
+        # --- 1. Abrir imagen de fondo ---
+        img = Image.open(image_path).convert("RGB")
+        draw = ImageDraw.Draw(img)
     
-        header_para._p.append(pict)
+        # --- 2. Fuente ---
+        if font_path:
+            font = ImageFont.truetype(font_path, font_size)
+        else:
+            font = ImageFont.load_default()
     
-        # El header debe tener altura 0 para evitar que empuje contenido
-        section.header_distance = 0
+        # --- 3. Escribir texto con sombra opcional ---
+        x, y = margin_x, margin_y
+        # sombra negra
+        draw.text((x+2, y+2), texto, font=font, fill="black")
+        # texto blanco encima
+        draw.text((x, y), texto, font=font, fill="white")
     
+        # --- 4. Guardar imagen final ---
+        img.save(output_path)
     
-    # ===============================
-    # USO EN TU DOCUMENTO
-    # ===============================
+        # --- 5. Insertar imagen a pantalla completa en docx ---
+        section = doc.sections[-1]
+        section.top_margin = 0
+        section.bottom_margin = 0
+        section.left_margin = 0
+        section.right_margin = 0
     
-    # 1) Insertar imagen como fondo
-    add_full_page_cover(doc, 'imagen_portada2.png')
-    
-    # 2) Ahora añadir texto normal al documento
-    section = doc.sections[0]
-    
-    # Párrafo vacío para separar (si quieres)
-    doc.add_paragraph("")
-    
-    # Título arriba a la izquierda con margen normal
-    p = doc.add_paragraph()
-    p.style = 'CustomTitle'
-    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    
+        p = doc.add_paragraph()
+        run = p.add_run()
+        run.add_picture(output_path, width=section.page_width, height=section.page_height)
+
+    # Obtener la persona de tu DataFrame
     persona_fila = miembros.loc[miembros["Nombre completo"] == nombre_persona]
     persona = persona_fila.iloc[0]
     
-    run_title = p.add_run(
-        f"Informe de Valor y Oportunidades para {persona.get('Nombre', 'N/D')} {persona.get('Apellidos', 'N/D')}"
+    # Crear portada con texto superpuesto
+    create_cover_with_person(
+        doc=doc,
+        image_path="imagen_portada2.png",
+        persona=persona,
+        font_size=80,
+        margin_x=50,
+        margin_y=50
     )
     
     
