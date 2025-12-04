@@ -1397,35 +1397,33 @@ from docx.shared import Inches
 from docx.shared import RGBColor
 from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER
 from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
 
 def generar_informe_persona(nombre_persona):
     doc = Document()
 
-    # Cambiar estilo Normal
+    # --- 0. Estilos normales ---
     style_normal = doc.styles['Normal']
-    font_normal = style_normal.font
-    font_normal.name = 'DM Sans'
-    font_normal.size = Pt(11)
-    style_normal.element.rPr.rFonts.set(qn('w:eastAsia'), 'DM Sans')
-    paragraph_format = style_normal.paragraph_format
-    paragraph_format.line_spacing = 1.0
-    paragraph_format.space_before = 2
-    paragraph_format.space_after = 2
-    
-    section = doc.sections[0]
-    
+    style_normal.font.name = 'DM Sans'
+    style_normal.font.size = Pt(11)
+    style_normal.paragraph_format.line_spacing = 1.0
+    style_normal.paragraph_format.space_before = 2
+    style_normal.paragraph_format.space_after = 2
 
-    # 👇 Esta línea es clave
-    section.different_first_page_header_footer = True
-    # Crear estilo personalizado solo si no existe
+    # --- 1. Sección portada: márgenes 0 ---
+    section_portada = doc.sections[0]
+    section_portada.top_margin = 0
+    section_portada.bottom_margin = 0
+    section_portada.left_margin = 0
+    section_portada.right_margin = 0
+
+    # --- 2. Estilos personalizados ---
     if 'CustomTitle' not in [s.name for s in doc.styles]:
         style = doc.styles.add_style('CustomTitle', WD_STYLE_TYPE.PARAGRAPH)
         font = style.font
         font.name = 'DM Sans'
         font.size = Pt(18)
         font.bold = True
-
-        # Forzar rFonts
         rFonts = OxmlElement('w:rFonts')
         rFonts.set(qn('w:ascii'), 'DM Sans')
         rFonts.set(qn('w:hAnsi'), 'DM Sans')
@@ -1433,138 +1431,80 @@ def generar_informe_persona(nombre_persona):
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
 
-    doc.add_paragraph("", style='CustomTitle')
-    from PIL import Image, ImageDraw, ImageFont
-
-    
-   
-    
-    def create_cover_with_person(doc, image_path, persona, output_path="portada_final.png",
-                                 font_path=None, font_size=80, margin_x=50, margin_y=50):
-        """
-        Crea portada con imagen a pantalla completa y texto superpuesto con el nombre de la persona.
-        
-        - doc: objeto Document de python-docx
-        - image_path: ruta de la imagen de fondo
-        - persona: diccionario con claves 'Nombre' y 'Apellidos'
-        - output_path: imagen generada
-        - font_path: ruta a fuente .ttf opcional
-        - font_size: tamaño del texto
-        - margin_x, margin_y: posición del texto desde esquina superior izquierda
-        """
-    
-        # Texto a superponer
-        texto = f"Informe de Valor y Oportunidades para {persona.get('Nombre','N/D')} {persona.get('Apellidos','N/D')}"
-    
-        # --- 1. Abrir imagen de fondo ---
-        img = Image.open(image_path).convert("RGB")
-        draw = ImageDraw.Draw(img)
-    
-        # --- 2. Fuente ---
-        if font_path:
-            font = ImageFont.truetype(font_path, font_size)
-        else:
-            font = ImageFont.load_default()
-    
-        # --- 3. Escribir texto con sombra opcional ---
-        x, y = margin_x, margin_y
-        # sombra negra
-        draw.text((x+2, y+2), texto, font=font, fill="black")
-        # texto blanco encima
-        draw.text((x, y), texto, font=font, fill="white")
-    
-        # --- 4. Guardar imagen final ---
-        img.save(output_path)
-    
-        # --- 5. Insertar imagen a pantalla completa en docx ---
-        section = doc.sections[-1]
-        section.top_margin = 0
-        section.bottom_margin = 0
-        section.left_margin = 0
-        section.right_margin = 0
-    
-        p = doc.add_paragraph()
-        run = p.add_run()
-        run.add_picture(output_path, width=section.page_width, height=section.page_height)
-
-    # Obtener la persona de tu DataFrame
-    persona_fila = miembros.loc[miembros["Nombre completo"] == nombre_persona]
-    persona = persona_fila.iloc[0]
-    
-    # Crear portada con texto superpuesto
-    create_cover_with_person(
-        doc=doc,
-        image_path="imagen_portada2.png",
-        persona=persona,
-        font_size=80,
-        margin_x=50,
-        margin_y=50
-    )
-    
-    
-    # ========================
-    # ENCABEZADO (solo imagen a la derecha)
-    # ========================
-    header = section.header
-    p_header = header.add_paragraph()
-    p_header.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
-    run_img = p_header.add_run()
-    run_img.add_picture('logo1.png', width=Inches(1.00))  # Puedes ajustar el tamaño
-    
-    # ========================
-    # PIE DE PÁGINA (número de página a la derecha)
-    # ========================
-    footer = section.footer
-    p_footer = footer.add_paragraph()
-    p_footer.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
-    
-    # Campo "Pag. {PAGE}"
-    run = p_footer.add_run("Pag. ")
-    
-    # Campo dinámico de número de página
-    fldChar1 = OxmlElement('w:fldChar')
-    fldChar1.set(qn('w:fldCharType'), 'begin')
-    
-    instrText = OxmlElement('w:instrText')
-    instrText.set(qn('xml:space'), 'preserve')
-    instrText.text = "PAGE"
-    
-    fldChar2 = OxmlElement('w:fldChar')
-    fldChar2.set(qn('w:fldCharType'), 'separate')
-    
-    fldChar3 = OxmlElement('w:t')
-    fldChar3.text = "1"
-    
-    fldChar4 = OxmlElement('w:fldChar')
-    fldChar4.set(qn('w:fldCharType'), 'end')
-    
-    run._r.append(fldChar1)
-    run._r.append(instrText)
-    run._r.append(fldChar2)
-    run._r.append(fldChar3)
-    run._r.append(fldChar4)
-    
-    font = run.font
-    font.size = Pt(9)
-    
     if 'IndexTitle' not in [s.name for s in doc.styles]:
         style = doc.styles.add_style('IndexTitle', WD_STYLE_TYPE.PARAGRAPH)
         font = style.font
         font.name = 'DM Sans'
         font.size = Pt(18)
-        font.bold = False  # Sin negrita
-    
-        # Forzar rFonts para DM Sans
+        font.bold = False
         rFonts = OxmlElement('w:rFonts')
         rFonts.set(qn('w:ascii'), 'DM Sans')
         rFonts.set(qn('w:hAnsi'), 'DM Sans')
         rFonts.set(qn('w:eastAsia'), 'DM Sans')
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
-    
-    doc.add_page_break()
+
+    # --- 3. Obtener persona ---
+    persona_fila = miembros.loc[miembros["Nombre completo"] == nombre_persona]
+    if persona_fila.empty:
+        raise ValueError(f"No se encontró la persona '{nombre_persona}'")
+    persona = persona_fila.iloc[0]
+
+    # --- 4. Función portada con imagen y texto superpuesto ---
+    def create_cover_with_person(doc, image_path, persona, output_path="portada_final.png",
+                                 font_path=None, font_size=80, margin_x=50, margin_y=50):
+        texto = f"Informe de Valor y Oportunidades para {persona.get('Nombre','N/D')} {persona.get('Apellidos','N/D')}"
+        img = Image.open(image_path).convert("RGB")
+        draw = ImageDraw.Draw(img)
+        if font_path:
+            font = ImageFont.truetype(font_path, font_size)
+        else:
+            font = ImageFont.load_default()
+        # sombra + texto blanco
+        x, y = margin_x, margin_y
+        draw.text((x+2, y+2), texto, font=font, fill="black")
+        draw.text((x, y), texto, font=font, fill="white")
+        img.save(output_path)
+
+        p = doc.add_paragraph()
+        run = p.add_run()
+        run.add_picture(output_path, width=doc.sections[-1].page_width, height=doc.sections[-1].page_height)
+
+    # --- 5. Crear portada ---
+    create_cover_with_person(doc, "imagen_portada2.png", persona, font_size=80, margin_x=50, margin_y=50)
+
+    # --- 6. Salto de sección para resto del documento con márgenes normales ---
+    doc.add_section()  # nueva sección
+    section_normal = doc.sections[-1]
+    section_normal.top_margin = Inches(1)
+    section_normal.bottom_margin = Inches(1)
+    section_normal.left_margin = Inches(1)
+    section_normal.right_margin = Inches(1)
+
+    # --- 7. Encabezado y pie de página ---
+    # Encabezado: logo a la derecha
+    header = section_normal.header
+    p_header = header.add_paragraph()
+    p_header.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    run_img = p_header.add_run()
+    run_img.add_picture('logo1.png', width=Inches(1.0))
+
+    # Pie de página: número de página a la derecha
+    footer = section_normal.footer
+    p_footer = footer.add_paragraph()
+    p_footer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    run = p_footer.add_run("Pag. ")
+    fldChar1 = OxmlElement('w:fldChar'); fldChar1.set(qn('w:fldCharType'), 'begin')
+    instrText = OxmlElement('w:instrText'); instrText.set(qn('xml:space'), 'preserve'); instrText.text = "PAGE"
+    fldChar2 = OxmlElement('w:fldChar'); fldChar2.set(qn('w:fldCharType'), 'separate')
+    fldChar3 = OxmlElement('w:t'); fldChar3.text = "1"
+    fldChar4 = OxmlElement('w:fldChar'); fldChar4.set(qn('w:fldCharType'), 'end')
+    run._r.extend([fldChar1, instrText, fldChar2, fldChar3, fldChar4])
+    run.font.size = Pt(9)
+
+    # --- 8. Índice ---
     doc.add_paragraph("", style='CustomTitle')
-    p_index_title = doc.add_paragraph('Índice', style='CustomTitle')
+    doc.add_paragraph("Índice", style='CustomTitle')
     
 
 
