@@ -1399,44 +1399,77 @@ from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
-def generar_informe_persona(nombre_persona):
-    doc = Document("plantilla.docx")
+def preparar_documento_con_portada(doc_path_or_obj, portada_img_path):
+    # Abrir documento (si pasas un objeto Document, úsalo tal cual)
+    if isinstance(doc_path_or_obj, str):
+        doc = Document(doc_path_or_obj)
+    else:
+        doc = doc_path_or_obj
 
+    # 1) LIMPIAR encabezados/pies de TODAS las secciones (por si la plantilla tenía logo)
+    for s in doc.sections:
+        s.header.is_linked_to_previous = False
+        s.footer.is_linked_to_previous = False
+        # Clear possible content
+        s.header._element.clear_content()
+        s.footer._element.clear_content()
+
+    # 2) CONFIGURAR PRIMERA SECCIÓN (portada)
     portada = doc.sections[0]
 
-    # Márgenes a cero para la imagen a página completa
+    # Márgenes a cero para poder colocar la imagen del tamaño de la página
     portada.top_margin = Inches(0)
     portada.bottom_margin = Inches(0)
     portada.left_margin = Inches(0)
     portada.right_margin = Inches(0)
-    
-    # Desvincular encabezado/pie aunque ya estén limpios
+
+    # Asegurar que la primera página pueda tener header distinto
+    portada.different_first_page = True
+
+    # Limpiar por si acaso
     portada.header.is_linked_to_previous = False
     portada.footer.is_linked_to_previous = False
     portada.header._element.clear_content()
     portada.footer._element.clear_content()
-    
-    def add_full_page_image(section, image_path):
-        page_w = section.page_width
-        page_h = section.page_height
-    
-        p = section._sectPr.getparent().add_paragraph()
-        r = p.add_run()
-    
-        pic = r.add_picture(image_path, width=page_w, height=page_h)
-    
-    add_full_page_image(portada, "imagen_portada2.jpg")
-    
-    # Añadir salto de sección
+
+    # 3) INSERTAR IMAGEN EN EL HEADER DE LA PRIMERA PÁGINA (first page header)
+    # Esto hace que la imagen solo aparezca en la primera página
+    # y no en las siguientes.
+    first_hdr = portada.first_page_header
+    # Alinear el párrafo del header para que la imagen quede centrada
+    p = first_hdr.paragraphs[0] if first_hdr.paragraphs else first_hdr.add_paragraph()
+    p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    run = p.add_run()
+
+    # Ajuste de tamaño: usar el tamaño exacto de la página
+    page_w = portada.page_width
+    page_h = portada.page_height
+
+    # Insertar la imagen escalada al tamaño de la página
+    # Si la imagen tiene proporciones distintas se ajustará estirando;
+    # si prefieres mantener proporción puedes calcular width/height manteniendo ratio.
+    run.add_picture(portada_img_path, width=page_w, height=page_h)
+
+    # 4) CREAR NUEVA SECCIÓN PARA CONTENIDO (márgenes normales)
     doc.add_section(WD_SECTION.NEW_PAGE)
-    
-    # 2) SEGUNDA SECCIÓN → MÁRGENES NORMALES
-    section_normal = doc.sections[1]
-    section_normal.top_margin = Inches(1)
-    section_normal.bottom_margin = Inches(1)
-    section_normal.left_margin = Inches(1)
-    section_normal.right_margin = Inches(1)
-    
+    contenido = doc.sections[1]
+
+    contenido.top_margin = Inches(1)
+    contenido.bottom_margin = Inches(1)
+    contenido.left_margin = Inches(1)
+    contenido.right_margin = Inches(1)
+
+    # Desvincular encabezados/pies de la nueva sección y dejar vacíos
+    contenido.header.is_linked_to_previous = False
+    contenido.footer.is_linked_to_previous = False
+    contenido.header._element.clear_content()
+    contenido.footer._element.clear_content()
+
+    return doc
+def generar_informe_persona(nombre_persona):
+    doc = Document("plantilla.docx")
+
+    doc.sections[1]
     
     # --- 0. Estilos normales ---
     style_normal = doc.styles['Normal']
