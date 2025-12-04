@@ -1022,7 +1022,15 @@ def recomendar_retos_por_perfil(nombre_persona, df_personas, df_retos, top_n=5):
         raise ValueError(f"No se encontró la persona '{nombre_persona}'")
 
     persona = persona_fila.iloc[0]
+    if df_retos is None or df_retos.empty:
+        # columnas coherentes con tu función original
+        columnas = list(df_retos.columns) if df_retos is not None else [
+            "Título", "Descripción", "Sector/es"
+        ]
+        columnas += ["Similitud coseno", "Coincidencia sectores", "ScoreFinal"]
 
+        df_resultados = pd.DataFrame(columns=columnas)
+        return df_resultados
     # --- 1. Crear texto representativo del perfil ---
     def limpiar_y_concatenar(val):
         if isinstance(val, list):
