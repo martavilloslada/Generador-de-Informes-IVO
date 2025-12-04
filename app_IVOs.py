@@ -1402,19 +1402,20 @@ from PIL import Image, ImageDraw, ImageFont
 def generar_informe_persona(nombre_persona):
     doc = Document()
 
-    # --- 1. Portada: nueva sección con márgenes 0 ---
-    section_cover = doc.sections[0]
-    section_cover.top_margin = 0
-    section_cover.bottom_margin = 0
-    section_cover.left_margin = 0
-    section_cover.right_margin = 0
+    # --- Primera página: imagen a tamaño completo ---
+    # Ajustar márgenes de la sección para la primera página
+    section = doc.sections[0]
+    section.top_margin = Inches(0)
+    section.bottom_margin = Inches(0)
+    section.left_margin = Inches(0)
+    section.right_margin = Inches(0)
     
-    # Crear un párrafo vacío y añadir la imagen como "inline shape"
-    p = section_cover.add_paragraph()  # header para evitar que empuje párrafos
-    run = p.add_run()
-    inline_shape = run.add_picture('imagen_portada2.png',
-                                   width=section_cover.page_width,
-                                   height=section_cover.page_height)
+    # Insertar imagen
+    doc.add_picture('imagen_portada2.jpg', width=section.page_width, height=section.page_height)
+    
+    # Insertar salto de sección para la siguiente página
+    doc.add_page_break()
+    
     
     # --- 2. Nueva sección para resto del documento ---
     section_normal = doc.add_section(WD_SECTION.NEW_PAGE)
