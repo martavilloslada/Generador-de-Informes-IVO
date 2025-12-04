@@ -1410,7 +1410,7 @@ def generar_informe_persona(nombre_persona):
     section_cover.right_margin = 0
     
     # Crear un párrafo vacío y añadir la imagen como "inline shape"
-    p = section_cover.header.add_paragraph()  # header para evitar que empuje párrafos
+    p = section_cover.add_paragraph()  # header para evitar que empuje párrafos
     run = p.add_run()
     inline_shape = run.add_picture('imagen_portada2.png',
                                    width=section_cover.page_width,
@@ -1471,17 +1471,17 @@ def generar_informe_persona(nombre_persona):
     #run_img = p_header.add_run()
     #run_img.add_picture('logo1.png', width=Inches(1.0))
 
-    footer = section_normal.footer
-    p_footer = footer.add_paragraph()
-    p_footer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    run = p_footer.add_run("Pag. ")
-    fldChar1 = OxmlElement('w:fldChar'); fldChar1.set(qn('w:fldCharType'), 'begin')
-    instrText = OxmlElement('w:instrText'); instrText.set(qn('xml:space'), 'preserve'); instrText.text = "PAGE"
-    fldChar2 = OxmlElement('w:fldChar'); fldChar2.set(qn('w:fldCharType'), 'separate')
-    fldChar3 = OxmlElement('w:t'); fldChar3.text = "1"
-    fldChar4 = OxmlElement('w:fldChar'); fldChar4.set(qn('w:fldCharType'), 'end')
-    run._r.extend([fldChar1, instrText, fldChar2, fldChar3, fldChar4])
-    run.font.size = Pt(9)
+    #footer = section_normal.footer
+    #p_footer = footer.add_paragraph()
+    #p_footer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    #run = p_footer.add_run("Pag. ")
+    #fldChar1 = OxmlElement('w:fldChar'); fldChar1.set(qn('w:fldCharType'), 'begin')
+    #instrText = OxmlElement('w:instrText'); instrText.set(qn('xml:space'), 'preserve'); instrText.text = "PAGE"
+    #fldChar2 = OxmlElement('w:fldChar'); fldChar2.set(qn('w:fldCharType'), 'separate')
+    #fldChar3 = OxmlElement('w:t'); fldChar3.text = "1"
+    #fldChar4 = OxmlElement('w:fldChar'); fldChar4.set(qn('w:fldCharType'), 'end')
+    #run._r.extend([fldChar1, instrText, fldChar2, fldChar3, fldChar4])
+    #run.font.size = Pt(9)
 
     # --- 7. Índice ---
     doc.add_paragraph("", style='CustomTitle')
