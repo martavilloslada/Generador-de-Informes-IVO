@@ -1434,44 +1434,61 @@ def generar_informe_persona(nombre_persona):
         style.element.rPr.insert(0, rFonts)
 
     doc.add_paragraph("", style='CustomTitle')
-    # === Crear tabla con 1 fila y 2 columnas ===
-    table = doc.add_table(rows=1, cols=2)
-    table.allow_autofit = True
-    table.autofit = True
-    
-    # Ajustar anchos de las columnas (por ejemplo, 10 cm y 8 cm)
-    table.columns[0].width = Inches(4)  # columna de imagen (~10.16 cm)
-    table.columns[1].width = Inches(3)  # columna de texto (~7.62 cm)
-    
-    # === Celda izquierda: imagen ===
-    cell_img = table.cell(0, 0)
-    paragraph_img = cell_img.paragraphs[0]
-    run_img = paragraph_img.add_run()
-    run_img.add_picture('imagen_portada.jpg', width=Inches(4))  # Ajusta tamaño si necesario
+    def add_full_page_cover(doc, image_path):
+    """
+    Inserta imagen a tamaño completo como portada sin márgenes,
+    usando el encabezado como background.
+    """
 
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
+        section = doc.sections[0]
     
-    # === Celda derecha: título ===
-    cell_title = table.cell(0, 1)
-
-    # limpiar primer párrafo vacío si existe
-    paragraph_title = cell_title.paragraphs[0]
-    paragraph_title.text = ""
+        # Tamaño completo de página
+        page_width = section.page_width
+        page_height = section.page_height
     
-    # añadir párrafos en blanco
-    cell_title.add_paragraph("")
-    cell_title.add_paragraph("")
-    cell_title.add_paragraph("")
+        header = section.header
+        header_para = header.paragraphs[0]
     
-    # ahora el párrafo de título
-    paragraph_title = cell_title.add_paragraph()
-    paragraph_title.style = 'CustomTitle'
-    paragraph_title.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        # Crear <w:pict> con <v:shape>
+        pict = OxmlElement('w:pict')
+        shape = OxmlElement('v:shape')
+        shape.set('id', 'CoverImage')
+        shape.set('style', f'width:{page_width};height:{page_height}')
+        shape.set('type', '#_x0000_t75')
+    
+        imagedata = OxmlElement('v:imagedata')
+        imagedata.set('r:id', doc.part.relate_to(image_path, doc.part.image_parts[0].content_type))
+        shape.append(imagedata)
+        pict.append(shape)
+    
+        header_para._p.append(pict)
+    
+        # El header debe tener altura 0 para evitar que empuje contenido
+        section.header_distance = 0
+    
+    
+    # ===============================
+    # USO EN TU DOCUMENTO
+    # ===============================
+    
+    # 1) Insertar imagen como fondo
+    add_full_page_cover(doc, 'logo1.png')
+    
+    # 2) Ahora añadir texto normal al documento
+    section = doc.sections[0]
+    
+    # Párrafo vacío para separar (si quieres)
+    doc.add_paragraph("")
+    
+    # Título arriba a la izquierda con margen normal
+    p = doc.add_paragraph()
+    p.style = 'CustomTitle'
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     
     persona_fila = miembros.loc[miembros["Nombre completo"] == nombre_persona]
     persona = persona_fila.iloc[0]
     
-    run_title = paragraph_title.add_run(
+    run_title = p.add_run(
         f"Informe de Valor y Oportunidades para {persona.get('Nombre', 'N/D')} {persona.get('Apellidos', 'N/D')}"
     )
     
