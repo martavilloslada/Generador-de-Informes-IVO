@@ -1398,41 +1398,34 @@ from docx.shared import RGBColor
 from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-def set_section_background(section, image_path):
-    """
-    Coloca una imagen como fondo de página usando XML.
-    """
-    # Acceso al XML de la sección
-    sectPr = section._sectPr
 
-    background = OxmlElement("w:background")
-    background.set(qn("w:color"), "FFFFFF")
-
-    pic = OxmlElement("w:picture")
-    pic.set(qn("w:src"), image_path)
-
-    background.append(pic)
-    sectPr.append(background)
 def generar_informe_persona(nombre_persona):
-    doc = Document()
+    doc = Document("plantilla.docx")
 
-    # 1) PRIMERA SECCIÓN → PORTADA
-    section = doc.sections[0]
+    portada = doc.sections[0]
+
+    # Márgenes a cero para la imagen a página completa
+    portada.top_margin = Inches(0)
+    portada.bottom_margin = Inches(0)
+    portada.left_margin = Inches(0)
+    portada.right_margin = Inches(0)
     
-    # Quitar márgenes
-    section.top_margin = Inches(0)
-    section.bottom_margin = Inches(0)
-    section.left_margin = Inches(0)
-    section.right_margin = Inches(0)
+    # Desvincular encabezado/pie aunque ya estén limpios
+    portada.header.is_linked_to_previous = False
+    portada.footer.is_linked_to_previous = False
+    portada.header._element.clear_content()
+    portada.footer._element.clear_content()
     
-    # Quitar encabezado/pie
-    section.header.is_linked_to_previous = False
-    section.footer.is_linked_to_previous = False
-    section.header._element.clear_content()
-    section.footer._element.clear_content()
+    def add_full_page_image(section, image_path):
+        page_w = section.page_width
+        page_h = section.page_height
     
-    # Colocar imagen como fondo real
-    set_section_background(section, "imagen_portada2.jpg")
+        p = section._sectPr.getparent().add_paragraph()
+        r = p.add_run()
+    
+        pic = r.add_picture(image_path, width=page_w, height=page_h)
+    
+    add_full_page_image(portada, "imagen_portada2.jpg")
     
     # Añadir salto de sección
     doc.add_section(WD_SECTION.NEW_PAGE)
