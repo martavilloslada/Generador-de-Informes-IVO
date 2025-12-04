@@ -1400,7 +1400,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
 def generar_informe_persona(nombre_persona):
-    doc = Document(plantilla2.docx)
+    doc = Document("plantilla2.docx")
     
     # Cambiar estilo Normal
     style_normal = doc.styles['Normal']
