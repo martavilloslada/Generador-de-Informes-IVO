@@ -1473,13 +1473,14 @@ def generar_informe_persona(nombre_persona):
     # --- 5. Crear portada ---
     create_cover_with_person(doc, "imagen_portada2.png", persona, font_size=80, margin_x=50, margin_y=50)
 
-    # --- 6. Salto de sección para resto del documento con márgenes normales ---
-    doc.add_section()  # nueva sección
-    section_normal = doc.sections[-1]
+    from docx.enum.section import WD_SECTION
+    section_normal = doc.add_section(WD_SECTION.NEW_PAGE)
     section_normal.top_margin = Inches(1)
     section_normal.bottom_margin = Inches(1)
     section_normal.left_margin = Inches(1)
     section_normal.right_margin = Inches(1)
+
+    
 
     # --- 7. Encabezado y pie de página ---
     # Encabezado: logo a la derecha
