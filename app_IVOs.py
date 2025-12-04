@@ -1435,11 +1435,7 @@ def generar_informe_persona(nombre_persona):
 
     doc.add_paragraph("", style='CustomTitle')
     def add_full_page_cover(doc, image_path):
-    """
-    Inserta imagen a tamaño completo como portada sin márgenes,
-    usando el encabezado como background.
-    """
-
+    
         section = doc.sections[0]
     
         # Tamaño completo de página
