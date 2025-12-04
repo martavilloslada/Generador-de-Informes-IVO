@@ -1472,7 +1472,7 @@ def generar_informe_persona(nombre_persona):
     # ===============================
     
     # 1) Insertar imagen como fondo
-    add_full_page_cover(doc, 'imagen_portada.png')
+    add_full_page_cover(doc, 'imagen_portada2.png')
     
     # 2) Ahora añadir texto normal al documento
     section = doc.sections[0]
