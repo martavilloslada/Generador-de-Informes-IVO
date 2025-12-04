@@ -1409,7 +1409,13 @@ def generar_informe_persona(nombre_persona):
     section.bottom_margin = Inches(0)
     section.left_margin = Inches(0)
     section.right_margin = Inches(0)
-    
+
+    section.header.is_linked_to_previous = False
+    section.footer.is_linked_to_previous = False
+    for paragraph in section.header.paragraphs:
+        paragraph.clear()
+    for paragraph in section.footer.paragraphs:
+        paragraph.clear()
     # Insertar imagen
     doc.add_picture('imagen_portada2.jpg', width=section.page_width, height=section.page_height)
     
@@ -1423,6 +1429,9 @@ def generar_informe_persona(nombre_persona):
     section_normal.bottom_margin = Inches(1)
     section_normal.left_margin = Inches(1)
     section_normal.right_margin = Inches(1)
+
+    new_section.header.is_linked_to_previous = False
+    new_section.footer.is_linked_to_previous = False
     
     # --- 0. Estilos normales ---
     style_normal = doc.styles['Normal']
