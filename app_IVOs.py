@@ -1399,93 +1399,34 @@ from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
-def preparar_documento_con_portada(doc_path_or_obj, portada_img_path):
-    # Abrir documento (si pasas un objeto Document, úsalo tal cual)
-    if isinstance(doc_path_or_obj, str):
-        doc = Document(doc_path_or_obj)
-    else:
-        doc = doc_path_or_obj
-
-    # 1) LIMPIAR encabezados/pies de TODAS las secciones (por si la plantilla tenía logo)
-    for s in doc.sections:
-        s.header.is_linked_to_previous = False
-        s.footer.is_linked_to_previous = False
-        # Clear possible content
-        s.header._element.clear_content()
-        s.footer._element.clear_content()
-
-    # 2) CONFIGURAR PRIMERA SECCIÓN (portada)
-    portada = doc.sections[0]
-
-    # Márgenes a cero para poder colocar la imagen del tamaño de la página
-    portada.top_margin = Inches(0)
-    portada.bottom_margin = Inches(0)
-    portada.left_margin = Inches(0)
-    portada.right_margin = Inches(0)
-
-    # Asegurar que la primera página pueda tener header distinto
-    portada.different_first_page = True
-
-    # Limpiar por si acaso
-    portada.header.is_linked_to_previous = False
-    portada.footer.is_linked_to_previous = False
-    portada.header._element.clear_content()
-    portada.footer._element.clear_content()
-
-    # 3) INSERTAR IMAGEN EN EL HEADER DE LA PRIMERA PÁGINA (first page header)
-    # Esto hace que la imagen solo aparezca en la primera página
-    # y no en las siguientes.
-    first_hdr = portada.first_page_header
-    # Alinear el párrafo del header para que la imagen quede centrada
-    p = first_hdr.paragraphs[0] if first_hdr.paragraphs else first_hdr.add_paragraph()
-    p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-    run = p.add_run()
-
-    # Ajuste de tamaño: usar el tamaño exacto de la página
-    page_w = portada.page_width
-    page_h = portada.page_height
-
-    # Insertar la imagen escalada al tamaño de la página
-    # Si la imagen tiene proporciones distintas se ajustará estirando;
-    # si prefieres mantener proporción puedes calcular width/height manteniendo ratio.
-    run.add_picture(portada_img_path, width=page_w, height=page_h)
-
-    # 4) CREAR NUEVA SECCIÓN PARA CONTENIDO (márgenes normales)
-    doc.add_section(WD_SECTION.NEW_PAGE)
-    contenido = doc.sections[1]
-
-    contenido.top_margin = Inches(1)
-    contenido.bottom_margin = Inches(1)
-    contenido.left_margin = Inches(1)
-    contenido.right_margin = Inches(1)
-
-    # Desvincular encabezados/pies de la nueva sección y dejar vacíos
-    contenido.header.is_linked_to_previous = False
-    contenido.footer.is_linked_to_previous = False
-    contenido.header._element.clear_content()
-    contenido.footer._element.clear_content()
-
-    return doc
 def generar_informe_persona(nombre_persona):
-    doc = Document("plantilla.docx")
-
-    doc.sections[1]
+    doc = Document(plantilla2.docx)
     
-    # --- 0. Estilos normales ---
+    # Cambiar estilo Normal
     style_normal = doc.styles['Normal']
-    style_normal.font.name = 'DM Sans'
-    style_normal.font.size = Pt(11)
-    style_normal.paragraph_format.line_spacing = 1.0
-    style_normal.paragraph_format.space_before = 2
-    style_normal.paragraph_format.space_after = 2
+    font_normal = style_normal.font
+    font_normal.name = 'DM Sans'
+    font_normal.size = Pt(11)
+    style_normal.element.rPr.rFonts.set(qn('w:eastAsia'), 'DM Sans')
+    paragraph_format = style_normal.paragraph_format
+    paragraph_format.line_spacing = 1.0
+    paragraph_format.space_before = 2
+    paragraph_format.space_after = 2
+        
+    section = doc.sections[0]
+    
 
-    # --- 1. Estilos personalizados ---
+    # 👇 Esta línea es clave
+    section.different_first_page_header_footer = True
+    # Crear estilo personalizado solo si no existe
     if 'CustomTitle' not in [s.name for s in doc.styles]:
         style = doc.styles.add_style('CustomTitle', WD_STYLE_TYPE.PARAGRAPH)
         font = style.font
         font.name = 'DM Sans'
         font.size = Pt(18)
         font.bold = True
+
+        # Forzar rFonts
         rFonts = OxmlElement('w:rFonts')
         rFonts.set(qn('w:ascii'), 'DM Sans')
         rFonts.set(qn('w:hAnsi'), 'DM Sans')
@@ -1493,51 +1434,110 @@ def generar_informe_persona(nombre_persona):
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
 
+    doc.add_paragraph("", style='CustomTitle')
+    # === Crear tabla con 1 fila y 2 columnas ===
+    table = doc.add_table(rows=1, cols=2)
+    table.allow_autofit = True
+    table.autofit = True
+    
+    # Ajustar anchos de las columnas (por ejemplo, 10 cm y 8 cm)
+    table.columns[0].width = Inches(4)  # columna de imagen (~10.16 cm)
+    table.columns[1].width = Inches(3)  # columna de texto (~7.62 cm)
+    
+
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    
+    # === Celda derecha: título ===
+    cell_title = table.cell(0, 0)
+
+    # limpiar primer párrafo vacío si existe
+    paragraph_title = cell_title.paragraphs[0]
+    paragraph_title.text = ""
+    
+    # añadir párrafos en blanco
+    cell_title.add_paragraph("")
+    cell_title.add_paragraph("")
+    
+    # ahora el párrafo de título
+    paragraph_title = cell_title.add_paragraph()
+    paragraph_title.style = 'CustomTitle'
+    paragraph_title.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    
+    persona_fila = miembros.loc[miembros["Nombre completo"] == nombre_persona] 
+    persona = persona_fila.iloc[0] 
+    run_title = paragraph_title.add_run( f"Informe de Valor y Oportunidades para {persona.get('Nombre', 'N/D')} {persona.get('Apellidos', 'N/D')}" )
+    
+    
+    # ========================
+    # ENCABEZADO (solo imagen a la derecha)
+    # ========================
+    header = section.header
+    p_header = header.add_paragraph()
+    p_header.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+    run_img = p_header.add_run()
+    run_img.add_picture('logo1.png', width=Inches(1.00))  # Puedes ajustar el tamaño
+    
+    # ========================
+    # PIE DE PÁGINA (número de página a la derecha)
+    # ========================
+    footer = section.footer
+    p_footer = footer.add_paragraph()
+    p_footer.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+    
+    # Campo "Pag. {PAGE}"
+    run = p_footer.add_run("Pag. ")
+    
+    # Campo dinámico de número de página
+    fldChar1 = OxmlElement('w:fldChar')
+    fldChar1.set(qn('w:fldCharType'), 'begin')
+    
+    instrText = OxmlElement('w:instrText')
+    instrText.set(qn('xml:space'), 'preserve')
+    instrText.text = "PAGE"
+    
+    fldChar2 = OxmlElement('w:fldChar')
+    fldChar2.set(qn('w:fldCharType'), 'separate')
+    
+    fldChar3 = OxmlElement('w:t')
+    fldChar3.text = "1"
+    
+    fldChar4 = OxmlElement('w:fldChar')
+    fldChar4.set(qn('w:fldCharType'), 'end')
+    
+    run._r.append(fldChar1)
+    run._r.append(instrText)
+    run._r.append(fldChar2)
+    run._r.append(fldChar3)
+    run._r.append(fldChar4)
+    
+    font = run.font
+    font.size = Pt(9)
+    
     if 'IndexTitle' not in [s.name for s in doc.styles]:
         style = doc.styles.add_style('IndexTitle', WD_STYLE_TYPE.PARAGRAPH)
         font = style.font
         font.name = 'DM Sans'
         font.size = Pt(18)
-        font.bold = False
+        font.bold = False  # Sin negrita
+    
+        # Forzar rFonts para DM Sans
         rFonts = OxmlElement('w:rFonts')
         rFonts.set(qn('w:ascii'), 'DM Sans')
         rFonts.set(qn('w:hAnsi'), 'DM Sans')
         rFonts.set(qn('w:eastAsia'), 'DM Sans')
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
-
-    # --- 2. Obtener persona ---
-    persona_fila = miembros.loc[miembros["Nombre completo"] == nombre_persona]
-    if persona_fila.empty:
-        raise ValueError(f"No se encontró la persona '{nombre_persona}'")
-    persona = persona_fila.iloc[0]
-
-    # --- 6. Encabezado y pie de página ---
-    #header = section_normal.header
-    #p_header = header.add_paragraph()
-    #p_header.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    #run_img = p_header.add_run()
-    #run_img.add_picture('logo1.png', width=Inches(1.0))
-
-    #footer = section_normal.footer
-    #p_footer = footer.add_paragraph()
-    #p_footer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    #run = p_footer.add_run("Pag. ")
-    #fldChar1 = OxmlElement('w:fldChar'); fldChar1.set(qn('w:fldCharType'), 'begin')
-    #instrText = OxmlElement('w:instrText'); instrText.set(qn('xml:space'), 'preserve'); instrText.text = "PAGE"
-    #fldChar2 = OxmlElement('w:fldChar'); fldChar2.set(qn('w:fldCharType'), 'separate')
-    #fldChar3 = OxmlElement('w:t'); fldChar3.text = "1"
-    #fldChar4 = OxmlElement('w:fldChar'); fldChar4.set(qn('w:fldCharType'), 'end')
-    #run._r.extend([fldChar1, instrText, fldChar2, fldChar3, fldChar4])
-    #run.font.size = Pt(9)
-
-    # --- 7. Índice ---
+    
+    doc.add_page_break()
     doc.add_paragraph("", style='CustomTitle')
-    doc.add_paragraph("Índice", style='CustomTitle')
+    p_index_title = doc.add_paragraph('Índice', style='CustomTitle')
+    nombre_entidad = persona.get('Socio', 'N/D')
 
+
+    # Lista manual (puedes ajustar tabulación o numeración como prefieras)
     indice_items = [
         "1. Introducción",
-        f"2. Resumen de datos de {persona.get('Nombre', 'N/D')} {persona.get('Apellidos', 'N/D')}",
+        f"2. Resumen de datos de {nombre_entidad}",
         "3. Contactos recomendados",
         "4. Eventos y actividades",
         "5. Retos tecnológicos",
@@ -1547,7 +1547,6 @@ def generar_informe_persona(nombre_persona):
     for item in indice_items:
         p = doc.add_paragraph(item, style='IndexTitle')
         p.paragraph_format.space_before = Pt(6)
-
     doc.add_page_break()
    
 
