@@ -1436,6 +1436,12 @@ def generar_informe_persona(nombre_persona):
     doc.add_paragraph("", style='CustomTitle')
     def add_full_page_cover(doc, image_path):
     
+        from docx.oxml.ns import register_namespace
+
+        # Registrar namespace de VML para permitir v:shape, v:imagedata, etc.
+        register_namespace('v', 'urn:schemas-microsoft-com:vml')
+        register_namespace('o', 'urn:schemas-microsoft-com:office:office')
+        register_namespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships')
         section = doc.sections[0]
     
         # Tamaño completo de página
