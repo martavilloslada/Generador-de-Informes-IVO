@@ -1398,40 +1398,52 @@ from docx.shared import RGBColor
 from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+def set_section_background(section, image_path):
+    """
+    Coloca una imagen como fondo de página usando XML.
+    """
+    # Acceso al XML de la sección
+    sectPr = section._sectPr
 
+    background = OxmlElement("w:background")
+    background.set(qn("w:color"), "FFFFFF")
+
+    pic = OxmlElement("w:picture")
+    pic.set(qn("w:src"), image_path)
+
+    background.append(pic)
+    sectPr.append(background)
 def generar_informe_persona(nombre_persona):
     doc = Document()
 
-    # --- Primera página: imagen a tamaño completo ---
-    # Ajustar márgenes de la sección para la primera página
+    # 1) PRIMERA SECCIÓN → PORTADA
     section = doc.sections[0]
+    
+    # Quitar márgenes
     section.top_margin = Inches(0)
     section.bottom_margin = Inches(0)
     section.left_margin = Inches(0)
     section.right_margin = Inches(0)
-
+    
+    # Quitar encabezado/pie
     section.header.is_linked_to_previous = False
     section.footer.is_linked_to_previous = False
-    for paragraph in section.header.paragraphs:
-        paragraph.clear()
-    for paragraph in section.footer.paragraphs:
-        paragraph.clear()
-    # Insertar imagen
-    doc.add_picture('imagen_portada2.jpg', width=section.page_width, height=section.page_height)
+    section.header._element.clear_content()
+    section.footer._element.clear_content()
     
-    # Insertar salto de sección para la siguiente página
-    doc.add_page_break()
+    # Colocar imagen como fondo real
+    set_section_background(section, "imagen_portada2.jpg")
     
+    # Añadir salto de sección
+    doc.add_section(WD_SECTION.NEW_PAGE)
     
-    # --- 2. Nueva sección para resto del documento ---
-    section_normal = doc.add_section(WD_SECTION.NEW_PAGE)
+    # 2) SEGUNDA SECCIÓN → MÁRGENES NORMALES
+    section_normal = doc.sections[1]
     section_normal.top_margin = Inches(1)
     section_normal.bottom_margin = Inches(1)
     section_normal.left_margin = Inches(1)
     section_normal.right_margin = Inches(1)
-
-    new_section.header.is_linked_to_previous = False
-    new_section.footer.is_linked_to_previous = False
+    
     
     # --- 0. Estilos normales ---
     style_normal = doc.styles['Normal']
