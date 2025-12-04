@@ -1402,6 +1402,27 @@ from PIL import Image, ImageDraw, ImageFont
 def generar_informe_persona(nombre_persona):
     doc = Document()
 
+    # --- 1. Portada: nueva sección con márgenes 0 ---
+    section_cover = doc.sections[0]
+    section_cover.top_margin = 0
+    section_cover.bottom_margin = 0
+    section_cover.left_margin = 0
+    section_cover.right_margin = 0
+    
+    # Crear un párrafo vacío y añadir la imagen como "inline shape"
+    p = section_cover.header.add_paragraph()  # header para evitar que empuje párrafos
+    run = p.add_run()
+    inline_shape = run.add_picture('imagen_portada2.png',
+                                   width=section_cover.page_width,
+                                   height=section_cover.page_height)
+    
+    # --- 2. Nueva sección para resto del documento ---
+    section_normal = doc.add_section(WD_SECTION.NEW_PAGE)
+    section_normal.top_margin = Inches(1)
+    section_normal.bottom_margin = Inches(1)
+    section_normal.left_margin = Inches(1)
+    section_normal.right_margin = Inches(1)
+    
     # --- 0. Estilos normales ---
     style_normal = doc.styles['Normal']
     style_normal.font.name = 'DM Sans'
@@ -1442,44 +1463,6 @@ def generar_informe_persona(nombre_persona):
     if persona_fila.empty:
         raise ValueError(f"No se encontró la persona '{nombre_persona}'")
     persona = persona_fila.iloc[0]
-
-    # --- 3. Función para portada ---
-    def create_cover_with_person(doc, image_path, persona, output_path="portada_final.png",
-                                 font_path=None, font_size=80, margin_x=50, margin_y=50):
-        texto = f"Informe de Valor y Oportunidades para {persona.get('Nombre','N/D')} {persona.get('Apellidos','N/D')}"
-        img = Image.open(image_path).convert("RGB")
-        draw = ImageDraw.Draw(img)
-        if font_path:
-            font = ImageFont.truetype(font_path, font_size)
-        else:
-            font = ImageFont.load_default()
-        # sombra + texto blanco
-        x, y = margin_x, margin_y
-        draw.text((x+2, y+2), texto, font=font, fill="black")
-        draw.text((x, y), texto, font=font, fill="white")
-        img.save(output_path)
-
-        # Insertar imagen en la primera sección (portada)
-        p = doc.paragraphs[0] if doc.paragraphs else doc.add_paragraph()
-        run = p.add_run()
-        run.add_picture(output_path, width=doc.sections[0].page_width, height=doc.sections[0].page_height)
-
-    # --- 4. Configurar portada ---
-    section_portada = doc.sections[0]
-    section_portada.top_margin = Inches(0)
-    section_portada.bottom_margin = Inches(0)
-    section_portada.left_margin = Inches(0)
-    section_portada.right_margin = Inches(0)
-
-    # Insertar portada
-    create_cover_with_person(doc, "imagen_portada2.png", persona, font_size=80)
-
-    # --- 5. Nueva sección para el resto del documento ---
-    section_normal = doc.add_section(WD_SECTION.NEW_PAGE)
-    section_normal.top_margin = Inches(1)
-    section_normal.bottom_margin = Inches(1)
-    section_normal.left_margin = Inches(1)
-    section_normal.right_margin = Inches(1)
 
     # --- 6. Encabezado y pie de página ---
     header = section_normal.header
