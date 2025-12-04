@@ -1410,9 +1410,7 @@ def generar_informe_persona(nombre_persona):
     style_normal.paragraph_format.space_before = 2
     style_normal.paragraph_format.space_after = 2
 
-    
-
-    # --- 2. Estilos personalizados ---
+    # --- 1. Estilos personalizados ---
     if 'CustomTitle' not in [s.name for s in doc.styles]:
         style = doc.styles.add_style('CustomTitle', WD_STYLE_TYPE.PARAGRAPH)
         font = style.font
@@ -1439,13 +1437,13 @@ def generar_informe_persona(nombre_persona):
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
 
-    # --- 3. Obtener persona ---
+    # --- 2. Obtener persona ---
     persona_fila = miembros.loc[miembros["Nombre completo"] == nombre_persona]
     if persona_fila.empty:
         raise ValueError(f"No se encontró la persona '{nombre_persona}'")
     persona = persona_fila.iloc[0]
 
-    # --- 4. Función portada con imagen y texto superpuesto ---
+    # --- 3. Función para portada ---
     def create_cover_with_person(doc, image_path, persona, output_path="portada_final.png",
                                  font_path=None, font_size=80, margin_x=50, margin_y=50):
         texto = f"Informe de Valor y Oportunidades para {persona.get('Nombre','N/D')} {persona.get('Apellidos','N/D')}"
@@ -1461,39 +1459,35 @@ def generar_informe_persona(nombre_persona):
         draw.text((x, y), texto, font=font, fill="white")
         img.save(output_path)
 
-        p = doc.add_paragraph()
+        # Insertar imagen en la primera sección (portada)
+        p = doc.paragraphs[0] if doc.paragraphs else doc.add_paragraph()
         run = p.add_run()
-        run.add_picture(output_path, width=doc.sections[-1].page_width, height=doc.sections[-1].page_height)
+        run.add_picture(output_path, width=doc.sections[0].page_width, height=doc.sections[0].page_height)
 
+    # --- 4. Configurar portada ---
     section_portada = doc.sections[0]
     section_portada.top_margin = Inches(0)
     section_portada.bottom_margin = Inches(0)
     section_portada.left_margin = Inches(0)
     section_portada.right_margin = Inches(0)
 
-    # --- 5. Crear portada ---
-    for p in doc.paragraphs:
-        p.clear()  # o doc._body.clear_content() si quieres todo limpio
-    create_cover_with_person(doc, "imagen_portada2.png", persona, font_size=80, margin_x=50, margin_y=50)
+    # Insertar portada
+    create_cover_with_person(doc, "imagen_portada2.png", persona, font_size=80)
 
-    from docx.enum.section import WD_SECTION
+    # --- 5. Nueva sección para el resto del documento ---
     section_normal = doc.add_section(WD_SECTION.NEW_PAGE)
     section_normal.top_margin = Inches(1)
     section_normal.bottom_margin = Inches(1)
     section_normal.left_margin = Inches(1)
     section_normal.right_margin = Inches(1)
 
-    
-
-    # --- 7. Encabezado y pie de página ---
-    # Encabezado: logo a la derecha
+    # --- 6. Encabezado y pie de página ---
     header = section_normal.header
     p_header = header.add_paragraph()
     p_header.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     run_img = p_header.add_run()
     run_img.add_picture('logo1.png', width=Inches(1.0))
 
-    # Pie de página: número de página a la derecha
     footer = section_normal.footer
     p_footer = footer.add_paragraph()
     p_footer.alignment = WD_ALIGN_PARAGRAPH.RIGHT
@@ -1506,13 +1500,10 @@ def generar_informe_persona(nombre_persona):
     run._r.extend([fldChar1, instrText, fldChar2, fldChar3, fldChar4])
     run.font.size = Pt(9)
 
-    # --- 8. Índice ---
+    # --- 7. Índice ---
     doc.add_paragraph("", style='CustomTitle')
     doc.add_paragraph("Índice", style='CustomTitle')
-    
 
-
-    # Lista manual (puedes ajustar tabulación o numeración como prefieras)
     indice_items = [
         "1. Introducción",
         f"2. Resumen de datos de {persona.get('Nombre', 'N/D')} {persona.get('Apellidos', 'N/D')}",
@@ -1525,6 +1516,7 @@ def generar_informe_persona(nombre_persona):
     for item in indice_items:
         p = doc.add_paragraph(item, style='IndexTitle')
         p.paragraph_format.space_before = Pt(6)
+
     doc.add_page_break()
    
 
