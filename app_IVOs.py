@@ -1436,7 +1436,7 @@ def generar_informe_persona(nombre_persona):
     doc.add_paragraph("", style='CustomTitle')
     def add_full_page_cover(doc, image_path):
     
-        from docx.oxml.ns import register_namespace
+        from docx.oxml import register_namespace
 
         # Registrar namespace de VML para permitir v:shape, v:imagedata, etc.
         register_namespace('v', 'urn:schemas-microsoft-com:vml')
