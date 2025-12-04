@@ -1410,12 +1410,7 @@ def generar_informe_persona(nombre_persona):
     style_normal.paragraph_format.space_before = 2
     style_normal.paragraph_format.space_after = 2
 
-    # --- 1. Sección portada: márgenes 0 ---
-    section_portada = doc.sections[0]
-    section_portada.top_margin = 0
-    section_portada.bottom_margin = 0
-    section_portada.left_margin = 0
-    section_portada.right_margin = 0
+    
 
     # --- 2. Estilos personalizados ---
     if 'CustomTitle' not in [s.name for s in doc.styles]:
@@ -1470,7 +1465,15 @@ def generar_informe_persona(nombre_persona):
         run = p.add_run()
         run.add_picture(output_path, width=doc.sections[-1].page_width, height=doc.sections[-1].page_height)
 
+    section_portada = doc.sections[0]
+    section_portada.top_margin = Inches(0)
+    section_portada.bottom_margin = Inches(0)
+    section_portada.left_margin = Inches(0)
+    section_portada.right_margin = Inches(0)
+
     # --- 5. Crear portada ---
+    for p in doc.paragraphs:
+        p.clear()  # o doc._body.clear_content() si quieres todo limpio
     create_cover_with_person(doc, "imagen_portada2.png", persona, font_size=80, margin_x=50, margin_y=50)
 
     from docx.enum.section import WD_SECTION
