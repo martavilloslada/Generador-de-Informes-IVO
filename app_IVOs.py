@@ -1400,7 +1400,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
 def generar_informe_persona(nombre_persona):
-    doc = Document("plantilla2.docx")
+    doc = Document("plantilla3.docx")
     
     # Cambiar estilo Normal
     style_normal = doc.styles['Normal']
@@ -1434,38 +1434,27 @@ def generar_informe_persona(nombre_persona):
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
 
-    doc.add_paragraph("", style='CustomTitle')
-    # === Crear tabla con 1 fila y 2 columnas ===
-    table = doc.add_table(rows=1, cols=2)
-    table.allow_autofit = True
-    table.autofit = True
-    
-    # Ajustar anchos de las columnas (por ejemplo, 10 cm y 8 cm)
-    table.columns[0].width = Inches(4)  # columna de imagen (~10.16 cm)
-    table.columns[1].width = Inches(3)  # columna de texto (~7.62 cm)
-    
+    table = doc.tables[0]  # Cambia el índice si no es la primera tabla
 
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
-    
-    # === Celda derecha: título ===
+    # Celda donde va el título
     cell_title = table.cell(0, 0)
-
-    # limpiar primer párrafo vacío si existe
-    paragraph_title = cell_title.paragraphs[0]
-    paragraph_title.text = ""
     
-    # añadir párrafos en blanco
-    cell_title.add_paragraph("")
-    cell_title.add_paragraph("")
+    # Limpiar cualquier contenido previo
+    cell_title.text = ""
     
-    # ahora el párrafo de título
     paragraph_title = cell_title.add_paragraph()
     paragraph_title.style = 'CustomTitle'
     paragraph_title.alignment = WD_ALIGN_PARAGRAPH.LEFT
     
     persona_fila = miembros.loc[miembros["Nombre completo"] == nombre_persona] 
     persona = persona_fila.iloc[0] 
-    run_title = paragraph_title.add_run( f"Informe de Valor y Oportunidades para {persona.get('Nombre', 'N/D')} {persona.get('Apellidos', 'N/D')}" )
+    
+    run_title = paragraph_title.add_run(
+        f"Informe de Valor y Oportunidades para "
+        f"{persona.get('Nombre', 'N/D')} {persona.get('Apellidos', 'N/D')}"
+    )
+    
+
     
     
     # ========================
