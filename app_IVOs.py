@@ -2461,8 +2461,8 @@ def generar_informe_persona(nombre_persona):
 # GENERACIÓN INFORME SOCIO
 #-----------------------------------------------------------------------------------------------------------
 def generar_informe_socio(nombre_persona):
-    doc = Document()
-
+    doc = Document("plantilla4.docx")
+    
     # Cambiar estilo Normal
     style_normal = doc.styles['Normal']
     font_normal = style_normal.font
@@ -2473,7 +2473,7 @@ def generar_informe_socio(nombre_persona):
     paragraph_format.line_spacing = 1.0
     paragraph_format.space_before = 2
     paragraph_format.space_after = 2
-    
+        
     section = doc.sections[0]
     
 
@@ -2495,38 +2495,32 @@ def generar_informe_socio(nombre_persona):
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
 
-    doc.add_paragraph("", style='CustomTitle')
-    # === Crear tabla con 1 fila y 2 columnas ===
-    table = doc.add_table(rows=1, cols=2)
-    table.allow_autofit = True
-    table.autofit = True
+    if 'IndexTitle' not in [s.name for s in doc.styles]:
+        style = doc.styles.add_style('IndexTitle', WD_STYLE_TYPE.PARAGRAPH)
+        font = style.font
+        font.name = 'DM Sans'
+        font.size = Pt(18)
+        font.bold = False  # Sin negrita
     
-    # Ajustar anchos de las columnas (por ejemplo, 10 cm y 8 cm)
-    table.columns[0].width = Inches(4)  # columna de imagen (~10.16 cm)
-    table.columns[1].width = Inches(3)  # columna de texto (~7.62 cm)
-    
-    # === Celda izquierda: imagen ===
-    cell_img = table.cell(0, 0)
-    paragraph_img = cell_img.paragraphs[0]
-    run_img = paragraph_img.add_run()
-    run_img.add_picture('imagen_portada.jpg', width=Inches(4))  # Ajusta tamaño si necesario
-
+        # Forzar rFonts para DM Sans
+        rFonts = OxmlElement('w:rFonts')
+        rFonts.set(qn('w:ascii'), 'DM Sans')
+        rFonts.set(qn('w:hAnsi'), 'DM Sans')
+        rFonts.set(qn('w:eastAsia'), 'DM Sans')
+        rFonts.set(qn('w:cs'), 'DM Sans')
+        style.element.rPr.insert(0, rFonts)
+        
     from docx.enum.text import WD_ALIGN_PARAGRAPH
-    
-    # === Celda derecha: título ===
-    cell_title = table.cell(0, 1)
+    table = doc.tables[0]  # Cambia el índice si no es la primera tabla
 
-    # limpiar primer párrafo vacío si existe
-    paragraph_title = cell_title.paragraphs[0]
-    paragraph_title.text = ""
+    # Celda donde va el título
+    cell_title = table.cell(0, 0)
     
-    # añadir párrafos en blanco
-    cell_title.add_paragraph("")
-    cell_title.add_paragraph("")
+    # Limpiar cualquier contenido previo
+    cell_title.text = ""
     
-    # ahora el párrafo de título
     paragraph_title = cell_title.add_paragraph()
-    paragraph_title.style = 'CustomTitle'
+    paragraph_title.style = 'IndexTitle'
     paragraph_title.alignment = WD_ALIGN_PARAGRAPH.LEFT
     
     persona_fila = socios.loc[socios["Nombre completo"] == nombre_persona]
@@ -2535,6 +2529,9 @@ def generar_informe_socio(nombre_persona):
     run_title = paragraph_title.add_run(
         f"Informe de Valor y Oportunidades para {persona.get('Socio', 'N/D')}"
     )
+    
+    from docx.shared import RGBColor
+    run_title.font.color.rgb = RGBColor(255, 255, 255)
     
     
     # ========================
