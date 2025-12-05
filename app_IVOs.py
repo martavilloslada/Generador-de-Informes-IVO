@@ -1424,7 +1424,7 @@ def generar_informe_persona(nombre_persona):
         font = style.font
         font.name = 'DM Sans'
         font.size = Pt(18)
-        font.bold = False
+        font.bold = True
 
         # Forzar rFonts
         rFonts = OxmlElement('w:rFonts')
@@ -1434,6 +1434,21 @@ def generar_informe_persona(nombre_persona):
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
 
+    if 'IndexTitle' not in [s.name for s in doc.styles]:
+        style = doc.styles.add_style('IndexTitle', WD_STYLE_TYPE.PARAGRAPH)
+        font = style.font
+        font.name = 'DM Sans'
+        font.size = Pt(18)
+        font.bold = False  # Sin negrita
+    
+        # Forzar rFonts para DM Sans
+        rFonts = OxmlElement('w:rFonts')
+        rFonts.set(qn('w:ascii'), 'DM Sans')
+        rFonts.set(qn('w:hAnsi'), 'DM Sans')
+        rFonts.set(qn('w:eastAsia'), 'DM Sans')
+        rFonts.set(qn('w:cs'), 'DM Sans')
+        style.element.rPr.insert(0, rFonts)
+        
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     table = doc.tables[0]  # Cambia el índice si no es la primera tabla
 
@@ -1444,7 +1459,7 @@ def generar_informe_persona(nombre_persona):
     cell_title.text = ""
     
     paragraph_title = cell_title.add_paragraph()
-    paragraph_title.style = 'CustomTitle'
+    paragraph_title.style = 'IndexTitle'
     paragraph_title.alignment = WD_ALIGN_PARAGRAPH.LEFT
     
     persona_fila = miembros.loc[miembros["Nombre completo"] == nombre_persona] 
@@ -1456,7 +1471,7 @@ def generar_informe_persona(nombre_persona):
     )
     from docx.shared import RGBColor
     run_title.font.color.rgb = RGBColor(255, 255, 255)
-    run_title.font.bold = False
+    
 
     
     
@@ -1505,20 +1520,6 @@ def generar_informe_persona(nombre_persona):
     font = run.font
     font.size = Pt(9)
     
-    if 'IndexTitle' not in [s.name for s in doc.styles]:
-        style = doc.styles.add_style('IndexTitle', WD_STYLE_TYPE.PARAGRAPH)
-        font = style.font
-        font.name = 'DM Sans'
-        font.size = Pt(18)
-        font.bold = False  # Sin negrita
-    
-        # Forzar rFonts para DM Sans
-        rFonts = OxmlElement('w:rFonts')
-        rFonts.set(qn('w:ascii'), 'DM Sans')
-        rFonts.set(qn('w:hAnsi'), 'DM Sans')
-        rFonts.set(qn('w:eastAsia'), 'DM Sans')
-        rFonts.set(qn('w:cs'), 'DM Sans')
-        style.element.rPr.insert(0, rFonts)
     
     doc.add_page_break()
     doc.add_paragraph("", style='CustomTitle')
