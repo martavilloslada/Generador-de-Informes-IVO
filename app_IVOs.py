@@ -1456,6 +1456,7 @@ def generar_informe_persona(nombre_persona):
     )
     from docx.shared import RGBColor
     run_title.font.color.rgb = RGBColor(255, 255, 255)
+    run_title.font.bold = False
 
     
     
