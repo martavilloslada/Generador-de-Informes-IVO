@@ -1424,7 +1424,7 @@ def generar_informe_persona(nombre_persona):
         font = style.font
         font.name = 'DM Sans'
         font.size = Pt(18)
-        font.bold = True
+        font.bold = False
 
         # Forzar rFonts
         rFonts = OxmlElement('w:rFonts')
