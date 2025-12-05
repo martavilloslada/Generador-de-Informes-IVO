@@ -1824,7 +1824,7 @@ def generar_informe_persona(nombre_persona):
                 fecha_str = fecha_dt.strftime("%d/%m/%Y") if pd.notna(fecha_dt) else "Fecha desconocida"
             except Exception:
                 fecha_str = "Fecha desconocida"
-            doc.add_paragraph(f"{evento['Título']} ({fecha_str})", style='ListBullet')
+            doc.add_paragraph(f"{evento['Título']} ({fecha_str})", style='List Bullet')
     else:
         doc.add_paragraph("Todavía no has asistido a ningún evento organizado por SECPhO.")
         
@@ -2946,7 +2946,7 @@ def generar_informe_socio(nombre_persona):
     
     if not df_eventos_por_evento.empty: 
         for _, evento in df_eventos_por_evento.iterrows():
-            p = doc.add_paragraph(style='ListBullet')
+            p = doc.add_paragraph(style='List Bullet')
     
             # Título del evento en negrita
             run_titulo = p.add_run(str(evento["Título"]))
