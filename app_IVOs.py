@@ -1400,7 +1400,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
 def generar_informe_persona(nombre_persona):
-    doc = Document("plantilla3.docx")
+    doc = Document("plantilla4.docx")
     
     # Cambiar estilo Normal
     style_normal = doc.styles['Normal']
@@ -1454,7 +1454,8 @@ def generar_informe_persona(nombre_persona):
         f"Informe de Valor y Oportunidades para "
         f"{persona.get('Nombre', 'N/D')} {persona.get('Apellidos', 'N/D')}"
     )
-    
+    from docx.shared import RGBColor
+    run_title.font.color.rgb = RGBColor(255, 255, 255)
 
     
     
