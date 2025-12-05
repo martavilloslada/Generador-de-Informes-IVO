@@ -1434,6 +1434,7 @@ def generar_informe_persona(nombre_persona):
         rFonts.set(qn('w:cs'), 'DM Sans')
         style.element.rPr.insert(0, rFonts)
 
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
     table = doc.tables[0]  # Cambia el índice si no es la primera tabla
 
     # Celda donde va el título
